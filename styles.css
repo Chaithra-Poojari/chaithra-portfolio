@@ -1534,6 +1534,8 @@ body[data-theme="midnight-orchid"] .brand-mark {
 
 body.modal-open {
   overflow: hidden;
+  transform: none !important;
+  animation: none !important;
 }
 
 @keyframes unlockFade {

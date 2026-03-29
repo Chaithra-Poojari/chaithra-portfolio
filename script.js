@@ -243,8 +243,8 @@ const buildExclusiveUnlockedCardMarkup = (project) => `
   </a>
 `;
 
-const decryptExclusiveProjects = async (exclusiveProjects, password) =>
-  Promise.all(
+const decryptExclusiveProjects = async (exclusiveProjects, password) => {
+  const settledProjects = await Promise.allSettled(
     exclusiveProjects.map(async (project) => {
       const decryptedProject = await window.decryptExclusiveProject(
         project.encryptedPayload,
@@ -262,6 +262,30 @@ const decryptExclusiveProjects = async (exclusiveProjects, password) =>
       };
     })
   );
+
+  return settledProjects
+    .filter((result) => result.status === "fulfilled")
+    .map((result) => result.value);
+};
+
+const unlockExclusiveProjects = async (password, data) => {
+  const isValid = await window.verifyExclusivePassword(
+    password,
+    data.settings?.exclusiveAccess || {}
+  );
+
+  if (!isValid) {
+    throw new Error("Incorrect password. Please try again.");
+  }
+
+  const decryptedProjects = await decryptExclusiveProjects(data.exclusiveProjects || [], password);
+  if (!decryptedProjects.length && (data.exclusiveProjects || []).length) {
+    throw new Error("Exclusive projects could not be opened. Please refresh and try again.");
+  }
+  unlockedExclusiveProjects = decryptedProjects;
+  setExclusiveSession(password);
+  return decryptedProjects;
+};
 
 const openExclusiveModal = (projectId = "") => {
   if (!exclusiveModal) {
@@ -1118,19 +1142,7 @@ exclusiveUnlockForm?.addEventListener("submit", async (event) => {
 
   try {
     exclusiveUnlockStatus.textContent = "Unlocking projects...";
-    const isValid = await window.verifyExclusivePassword(
-      password,
-      data.settings?.exclusiveAccess || {}
-    );
-
-    if (!isValid) {
-      exclusiveUnlockStatus.textContent = "Incorrect password. Please try again.";
-      return;
-    }
-
-    // Store the valid password for this tab so exclusive previews can be decrypted
-    // without affecting the rest of the website or making the section public by default.
-    setExclusiveSession(password);
+    await unlockExclusiveProjects(password, data);
     const nextExclusiveTarget = exclusiveUnlockTarget;
     closeExclusiveModal();
 
@@ -1142,33 +1154,93 @@ exclusiveUnlockForm?.addEventListener("submit", async (event) => {
     if (pageType === "case-study" && nextExclusiveTarget) {
       navigateWithTransition(`/projects/case-study.html?id=${nextExclusiveTarget}`);
     }
-  } catch {
-    exclusiveUnlockStatus.textContent = "Could not unlock the exclusive section.";
+  } catch (error) {
+    exclusiveUnlockStatus.textContent =
+      error.message || "Could not unlock the exclusive section.";
+  }
+});
+
+window.addEventListener("storage", async (event) => {
+  if (event.key !== "cpw-portfolio-data") {
+    return;
+  }
+
+  // Admin saves can happen in a separate tab. When that happens, clear any stale
+  // exclusive unlock session so the website always re-validates against the latest data.
+  clearExclusiveSession();
+  unlockedExclusiveProjects = [];
+
+  if (pageType === "portfolio") {
+    await renderPortfolioPage();
+    refreshRevealObserver();
+    return;
+  }
+
+  if (pageType === "case-study") {
+    await renderCaseStudyPage();
+    refreshRevealObserver();
+    return;
+  }
+
+  if (pageType === "blog-post") {
+    renderBlogPostPage();
+    refreshRevealObserver();
   }
 });
 
 if (contactForm) {
-  contactForm.addEventListener("submit", (event) => {
+  contactForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const submitButton = contactForm.querySelector('button[type="submit"]');
     const status = contactForm.querySelector(".form-status");
     const name = contactForm.querySelector('input[name="name"]')?.value.trim() || "";
     const email = contactForm.querySelector('input[name="email"]')?.value.trim() || "";
     const message = contactForm.querySelector('textarea[name="message"]')?.value.trim() || "";
-    const subject = encodeURIComponent(`Portfolio inquiry from ${name || "Website visitor"}`);
-    const body = encodeURIComponent(
-      `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
-    );
 
-    submitButton.textContent = "Opening Mail";
-    if (status) {
-      status.textContent = `Opening your mail app to send this to ${CONTACT_EMAIL}.`;
+    if (!name || !email || !message) {
+      if (status) {
+        status.textContent = "Please fill in your name, email, and message.";
+      }
+      return;
     }
-    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
 
-    window.setTimeout(() => {
+    submitButton.disabled = true;
+    submitButton.textContent = "Sending...";
+    if (status) {
+      status.textContent = "Sending your message...";
+    }
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          message
+        })
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result?.error || "Message could not be sent.");
+      }
+
+      contactForm.reset();
+      if (status) {
+        status.textContent = "Message sent successfully.";
+      }
+    } catch (error) {
+      if (status) {
+        status.textContent =
+          error.message || "Message could not be sent right now. Please try again.";
+      }
+    } finally {
+      submitButton.disabled = false;
       submitButton.textContent = "Send Message";
-    }, 1200);
+    }
   });
 }
 

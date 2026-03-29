@@ -251,6 +251,22 @@ const getExclusivePasswordInputValue = () =>
   localStorage.getItem(EXCLUSIVE_ADMIN_PASSWORD_STORAGE_KEY) ||
   DEFAULT_EXCLUSIVE_PASSWORD;
 
+const uniquePasswords = (...values) => [...new Set(values.map((value) => String(value || "").trim()).filter(Boolean))];
+
+const decryptExclusiveWithFallbacks = async (project, ...candidatePasswords) => {
+  const passwords = uniquePasswords(...candidatePasswords, DEFAULT_EXCLUSIVE_PASSWORD);
+  for (const password of passwords) {
+    try {
+      return await window.decryptExclusiveProject(project.encryptedPayload, password);
+    } catch {
+      // Try the next candidate password. This helps recover older seeded projects
+      // if the admin password and encrypted payloads briefly drifted out of sync.
+    }
+  }
+
+  throw new Error("Exclusive project decryption failed.");
+};
+
 const getBrandSettings = () => ({
   displayName: portfolioData.profile.brand?.displayName || portfolioData.profile.name,
   caption: portfolioData.profile.brand?.caption || portfolioData.profile.role,
@@ -779,13 +795,24 @@ const renderProjectWizard = () => {
   const hasDraft = Boolean(currentProjectDraft?.template);
   projectTemplateStage.classList.toggle("is-hidden", hasDraft);
   projectWizard.classList.toggle("is-hidden", !hasDraft);
+  projectSaveButton.textContent =
+    currentProjectMode === "exclusive" ? "Save secret project" : "Publish project";
+  projectBackButton.textContent =
+    currentProjectMode === "exclusive" ? "Back to secret projects" : "Back to projects";
 
   if (!hasDraft) {
-    projectEditorTitle.textContent = "Start a new case study";
+    projectEditorTitle.textContent =
+      currentProjectMode === "exclusive"
+        ? "Start a new secret case study"
+        : "Start a new case study";
     return;
   }
 
-  projectEditorTitle.textContent = currentProjectDraft.title || `${getTemplateMeta(currentProjectDraft.template).label} case study`;
+  projectEditorTitle.textContent =
+    currentProjectDraft.title ||
+    `${getTemplateMeta(currentProjectDraft.template).label} ${
+      currentProjectMode === "exclusive" ? "secret case study" : "case study"
+    }`;
   wizardStepLabel.textContent = `Step ${currentProjectStep + 1} of ${caseStudyStepLabels.length}`;
   wizardStepTitle.textContent = caseStudyStepLabels[currentProjectStep];
   wizardProgressFill.style.width = `${((currentProjectStep + 1) / caseStudyStepLabels.length) * 100}%`;
@@ -829,7 +856,7 @@ const openExclusiveProjectForEdit = async (projectId) => {
   try {
     currentProjectMode = "exclusive";
     currentProjectDraft = cloneDraft(
-      await window.decryptExclusiveProject(project.encryptedPayload, password)
+      await decryptExclusiveWithFallbacks(project, password)
     );
     selectedProjectId = project.id;
     currentProjectStep = 0;
@@ -1171,7 +1198,8 @@ const populateProfileForm = () => {
   document.getElementById("brand-accent-dot").value = brand.accentDot;
   document.getElementById("admin-login-email-display").value = ADMIN_EMAIL;
   document.getElementById("admin-password-input").value = getAdminPassword();
-  document.getElementById("exclusive-password-input-admin").value = "";
+  document.getElementById("exclusive-password-input-admin").value =
+    localStorage.getItem(EXCLUSIVE_ADMIN_PASSWORD_STORAGE_KEY) || DEFAULT_EXCLUSIVE_PASSWORD;
   document.getElementById("exclusive-password-hint").value =
     getExclusiveSettings().hint || "Enter password from my CV.";
   updateImagePreview("banner-preview", pendingProfileUploads.bannerImage || profile.heroImage, "No banner");
@@ -1311,7 +1339,7 @@ const moveExclusiveProjectToPublic = async (projectId) => {
   }
 
   try {
-    const project = await window.decryptExclusiveProject(preview.encryptedPayload, password);
+    const project = await decryptExclusiveWithFallbacks(preview, password);
     portfolioData.exclusiveProjects = (portfolioData.exclusiveProjects || []).filter(
       (item) => item.id !== projectId
     );
@@ -1672,9 +1700,11 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
     try {
       portfolioData.exclusiveProjects = await Promise.all(
         portfolioData.exclusiveProjects.map(async (project) => {
-          const decrypted = await window.decryptExclusiveProject(
-            project.encryptedPayload,
-            currentExclusivePassword
+          const decrypted = await decryptExclusiveWithFallbacks(
+            project,
+            currentExclusivePassword,
+            exclusivePasswordValue,
+            localStorage.getItem(EXCLUSIVE_ADMIN_PASSWORD_STORAGE_KEY)
           );
           const encryptedPayload = await window.encryptExclusiveProject(
             decrypted,
@@ -1764,6 +1794,7 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
     if (exclusivePasswordValue) {
       localStorage.setItem(EXCLUSIVE_ADMIN_PASSWORD_STORAGE_KEY, exclusivePasswordValue);
     }
+    populateProfileForm();
   }
 });
 

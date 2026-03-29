@@ -463,6 +463,29 @@ const normalizeAssetPath = (image, fallback = "./assets/profile-portrait.svg") =
 
 const ensureArray = (value) => (Array.isArray(value) ? value : []);
 
+const normalizeBase64Value = (value) =>
+  String(value || "")
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/-/g, "+")
+    .replace(/_/g, "/");
+
+const isBase64Like = (value) => {
+  const normalized = normalizeBase64Value(value);
+  return Boolean(normalized) && /^[A-Za-z0-9+/=]+$/.test(normalized);
+};
+
+const hasValidEncryptedPayload = (project) => {
+  const payload = project?.encryptedPayload;
+  return Boolean(
+    payload &&
+      typeof payload === "object" &&
+      isBase64Like(payload.salt) &&
+      isBase64Like(payload.iv) &&
+      isBase64Like(payload.cipherText)
+  );
+};
+
 const ensureExclusiveProjectStructure = (project) => ({
   id: project.id || `exclusive-${Date.now()}`,
   title: project.title || "Exclusive Project",
@@ -480,7 +503,7 @@ const ensureExclusiveProjectStructure = (project) => ({
   tags: ensureArray(project.tags),
   template: project.template || "ai-saas",
   featured: Boolean(project.featured),
-  encryptedPayload: project.encryptedPayload || null
+  encryptedPayload: hasValidEncryptedPayload(project) ? project.encryptedPayload : null
 });
 
 const encoder = typeof TextEncoder !== "undefined" ? new TextEncoder() : null;
@@ -503,7 +526,20 @@ const base64ToBytes = (value) => {
     return new Uint8Array();
   }
 
-  const binary = atob(value);
+  const normalized = normalizeBase64Value(value);
+
+  const padded =
+    normalized.length % 4 === 0
+      ? normalized
+      : normalized.padEnd(normalized.length + (4 - (normalized.length % 4)), "=");
+
+  let binary = "";
+  try {
+    binary = atob(padded);
+  } catch {
+    return new Uint8Array();
+  }
+
   return Uint8Array.from(binary, (char) => char.charCodeAt(0));
 };
 
@@ -596,6 +632,15 @@ window.encryptExclusiveProject = async (project, password) => {
 };
 
 window.decryptExclusiveProject = async (encryptedPayload, password) => {
+  if (
+    !encryptedPayload ||
+    !isBase64Like(encryptedPayload.salt) ||
+    !isBase64Like(encryptedPayload.iv) ||
+    !isBase64Like(encryptedPayload.cipherText)
+  ) {
+    throw new Error("Exclusive project data is invalid.");
+  }
+
   const key = await deriveAesKey(password, encryptedPayload.salt);
   const decrypted = await window.crypto.subtle.decrypt(
     {
@@ -622,6 +667,20 @@ window.createExclusivePreview = (project, encryptedPayload) => ({
   featured: Boolean(project.featured),
   encryptedPayload
 });
+
+const sanitizeExclusiveProjects = (projects) => {
+  const sanitized = ensureArray(projects)
+    .map(ensureExclusiveProjectStructure)
+    .filter((project) => project.encryptedPayload);
+
+  if (sanitized.length) {
+    return sanitized;
+  }
+
+  return defaultExclusiveProjects
+    .map(ensureExclusiveProjectStructure)
+    .filter((project) => project.encryptedPayload);
+};
 
 const ensureProjectStructure = (project) => {
   const template = project.template || "ai-saas";
@@ -717,10 +776,7 @@ window.getPortfolioData = () => {
       }
     };
     base.projects = ensureArray(base.projects).map(ensureProjectStructure);
-    base.exclusiveProjects = ensureArray(base.exclusiveProjects).map(ensureExclusiveProjectStructure);
-    if (!base.exclusiveProjects.length && defaultExclusiveProjects.length) {
-      base.exclusiveProjects = defaultExclusiveProjects.map(ensureExclusiveProjectStructure);
-    }
+    base.exclusiveProjects = sanitizeExclusiveProjects(base.exclusiveProjects);
     base.blogs = ensureArray(base.blogs).map(ensureBlogStructure);
     base.experience = ensureArray(base.experience);
     return base;
@@ -745,10 +801,7 @@ window.getPortfolioData = () => {
       }
     };
     fallback.projects = fallback.projects.map(ensureProjectStructure);
-    fallback.exclusiveProjects = ensureArray(fallback.exclusiveProjects).map(ensureExclusiveProjectStructure);
-    if (!fallback.exclusiveProjects.length && defaultExclusiveProjects.length) {
-      fallback.exclusiveProjects = defaultExclusiveProjects.map(ensureExclusiveProjectStructure);
-    }
+    fallback.exclusiveProjects = sanitizeExclusiveProjects(fallback.exclusiveProjects);
     fallback.blogs = fallback.blogs.map(ensureBlogStructure);
     return fallback;
   }
@@ -763,7 +816,7 @@ window.resetPortfolioData = () => {
   const resetValue = deepClone(defaultPortfolioData);
   resetValue.profile.heroImage = normalizeAssetPath(resetValue.profile.heroImage || "", "");
   resetValue.projects = resetValue.projects.map(ensureProjectStructure);
-  resetValue.exclusiveProjects = ensureArray(resetValue.exclusiveProjects).map(ensureExclusiveProjectStructure);
+  resetValue.exclusiveProjects = sanitizeExclusiveProjects(resetValue.exclusiveProjects);
   resetValue.blogs = resetValue.blogs.map(ensureBlogStructure);
   return resetValue;
 };
