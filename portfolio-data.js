@@ -61,12 +61,12 @@ const defaultPortfolioData = {
     name: "Chaithra Poojary",
     firstName: "Chaithra",
     role: "Product Designer",
-    heroImage: "",
+    heroImage: "/assets/project-lumen.svg",
     brand: {
       displayName: "Chaithra Poojary",
       caption: "Product Designer",
-      iconImage: "",
-      faviconImage: "",
+      iconImage: "/assets/project-orbit.svg",
+      faviconImage: "/assets/project-orbit.svg",
       accentStart: "#7A5CFF",
       accentEnd: "#5A8BFF",
       accentDot: "#7b72ed"
@@ -757,13 +757,27 @@ window.getPortfolioData = () => {
   try {
     const storedValue = localStorage.getItem(PORTFOLIO_STORAGE_KEY);
     const base = storedValue ? JSON.parse(storedValue) : deepClone(defaultPortfolioData);
-    base.profile.image = normalizeAssetPath(base.profile.image || "", "");
-    base.profile.heroImage = normalizeAssetPath(base.profile.heroImage || "", "");
+    base.profile.image = normalizeAssetPath(
+      base.profile.image || defaultPortfolioData.profile.image || "",
+      ""
+    );
+    base.profile.heroImage = normalizeAssetPath(
+      base.profile.heroImage || defaultPortfolioData.profile.heroImage || "",
+      ""
+    );
     base.profile.brand = {
       displayName: base.profile.brand?.displayName || base.profile.name,
       caption: base.profile.brand?.caption || base.profile.role,
-      iconImage: normalizeAssetPath(base.profile.brand?.iconImage || "", ""),
-      faviconImage: normalizeAssetPath(base.profile.brand?.faviconImage || "", ""),
+      iconImage: normalizeAssetPath(
+        base.profile.brand?.iconImage || defaultPortfolioData.profile.brand?.iconImage || "",
+        ""
+      ),
+      faviconImage: normalizeAssetPath(
+        base.profile.brand?.faviconImage ||
+          defaultPortfolioData.profile.brand?.faviconImage ||
+          "",
+        ""
+      ),
       accentStart: base.profile.brand?.accentStart || "#7A5CFF",
       accentEnd: base.profile.brand?.accentEnd || "#5A8BFF",
       accentDot: base.profile.brand?.accentDot || "#7b72ed"
@@ -782,13 +796,29 @@ window.getPortfolioData = () => {
     return base;
   } catch {
     const fallback = deepClone(defaultPortfolioData);
-    fallback.profile.heroImage = normalizeAssetPath(fallback.profile.heroImage || "", "");
-    fallback.profile.image = normalizeAssetPath(fallback.profile.image || "", "");
+    fallback.profile.heroImage = normalizeAssetPath(
+      fallback.profile.heroImage || defaultPortfolioData.profile.heroImage || "",
+      ""
+    );
+    fallback.profile.image = normalizeAssetPath(
+      fallback.profile.image || defaultPortfolioData.profile.image || "",
+      ""
+    );
     fallback.profile.brand = {
       displayName: fallback.profile.brand?.displayName || fallback.profile.name,
       caption: fallback.profile.brand?.caption || fallback.profile.role,
-      iconImage: normalizeAssetPath(fallback.profile.brand?.iconImage || "", ""),
-      faviconImage: normalizeAssetPath(fallback.profile.brand?.faviconImage || "", ""),
+      iconImage: normalizeAssetPath(
+        fallback.profile.brand?.iconImage ||
+          defaultPortfolioData.profile.brand?.iconImage ||
+          "",
+        ""
+      ),
+      faviconImage: normalizeAssetPath(
+        fallback.profile.brand?.faviconImage ||
+          defaultPortfolioData.profile.brand?.faviconImage ||
+          "",
+        ""
+      ),
       accentStart: fallback.profile.brand?.accentStart || "#7A5CFF",
       accentEnd: fallback.profile.brand?.accentEnd || "#5A8BFF",
       accentDot: fallback.profile.brand?.accentDot || "#7b72ed"
@@ -814,7 +844,10 @@ window.savePortfolioData = (value) => {
 window.resetPortfolioData = () => {
   localStorage.removeItem(PORTFOLIO_STORAGE_KEY);
   const resetValue = deepClone(defaultPortfolioData);
-  resetValue.profile.heroImage = normalizeAssetPath(resetValue.profile.heroImage || "", "");
+  resetValue.profile.heroImage = normalizeAssetPath(
+    resetValue.profile.heroImage || defaultPortfolioData.profile.heroImage || "",
+    ""
+  );
   resetValue.projects = resetValue.projects.map(ensureProjectStructure);
   resetValue.exclusiveProjects = sanitizeExclusiveProjects(resetValue.exclusiveProjects);
   resetValue.blogs = resetValue.blogs.map(ensureBlogStructure);
