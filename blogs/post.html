@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog | Chaithra Poojary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Allura&display=swap"
+      rel="stylesheet"
+    />
+    <link id="dynamic-favicon" rel="icon" href="" />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body class="blog-body" data-theme="midnight-orchid" data-page="blog-post" data-scene="blogs">
+    <div class="global-background" aria-hidden="true">
+      <div class="bg-layer bg-sky"></div>
+      <div class="bg-layer bg-celestial"></div>
+      <div class="bg-layer bg-stars"></div>
+      <div class="bg-layer bg-hills"></div>
+      <div class="bg-layer bg-trees"></div>
+      <div class="bg-layer bg-fog"></div>
+      <div class="bg-layer bg-petals">
+        <span class="petal petal-1"></span>
+        <span class="petal petal-2"></span>
+        <span class="petal petal-3"></span>
+        <span class="petal petal-4"></span>
+        <span class="petal petal-5"></span>
+        <span class="petal petal-6"></span>
+        <span class="petal petal-7"></span>
+        <span class="petal petal-8"></span>
+      </div>
+    </div>
+
+    <header class="site-header">
+      <nav class="navbar container" aria-label="Primary">
+        <a class="brand" data-admin-logo href="/#home" aria-label="Chaithra Poojary home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg class="brand-mark-svg" viewBox="0 0 64 64" role="img" aria-hidden="true">
+              <defs>
+                <linearGradient id="brand-accent-blog" x1="10%" y1="10%" x2="90%" y2="90%">
+                  <stop offset="0%" stop-color="#7A5CFF"></stop>
+                  <stop offset="100%" stop-color="#5A8BFF"></stop>
+                </linearGradient>
+              </defs>
+              <path class="brand-grid" d="M12 12H52M12 24H52M12 36H52M12 48H52M12 12V52M24 12V52M36 12V52M48 12V52"></path>
+              <rect class="brand-frame" x="18" y="16" width="24" height="30" rx="4"></rect>
+              <path class="brand-frame" d="M22 22H38"></path>
+              <path class="brand-frame" d="M22 28H33"></path>
+              <path class="brand-accent" d="M39 34L47 26"></path>
+              <path class="brand-accent" d="M41 24H49V32"></path>
+              <circle class="brand-accent-dot" cx="24" cy="38" r="2.5"></circle>
+            </svg>
+          </span>
+          <span class="brand-lockup">
+            <span class="brand-signature" data-brand-name>Chaithra Poojary</span>
+            <span class="brand-caption">Product Designer</span>
+          </span>
+        </a>
+      </nav>
+    </header>
+
+    <main class="blog-post-main container">
+      <a class="back-link" href="/#blogs">← Back to Blogs</a>
+      <article class="blog-post-layout">
+        <header class="blog-post-hero reveal">
+          <p class="eyebrow">Blog</p>
+          <time id="blog-post-date"></time>
+          <h1 id="blog-post-title">Article title</h1>
+          <p class="blog-post-summary" id="blog-post-summary"></p>
+          <div class="blog-post-cover-wrap">
+            <img id="blog-post-cover" src="../assets/project-lumen.svg" alt="Blog cover" />
+          </div>
+        </header>
+
+        <section class="blog-post-content reveal" id="blog-post-content"></section>
+
+        <section class="blog-post-footer glass-card reveal">
+          <p class="admin-kicker">Summary</p>
+          <p id="blog-post-summary-section"></p>
+        </section>
+      </article>
+    </main>
+
+    <script src="../portfolio-data.js"></script>
+    <script src="../script.js"></script>
+  </body>
+</html>

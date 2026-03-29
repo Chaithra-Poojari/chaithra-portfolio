@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login Redirect</title>
+    <meta http-equiv="refresh" content="0; url=/studio/" />
+    <link rel="stylesheet" href="../studio/admin.css" />
+  </head>
+  <body class="admin-body">
+    <main class="admin-redirect">
+      <div class="admin-card">
+        <p class="admin-kicker">Admin</p>
+        <h1>Redirecting to studio</h1>
+      </div>
+    </main>
+    <script>
+      window.setTimeout(() => {
+        window.location.replace("/studio/");
+      }, 80);
+    </script>
+  </body>
+</html>

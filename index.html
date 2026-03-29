@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chaithra Poojary | Product Designer</title>
+    <meta
+      name="description"
+      content="A modern, minimal portfolio for a product designer focused on thoughtful systems, calm interfaces, and human-centered experiences."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Allura&display=swap"
+      rel="stylesheet"
+    />
+    <link id="dynamic-favicon" rel="icon" href="" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-theme="midnight-orchid" data-page="portfolio" data-scene="home">
+    <div class="global-background" aria-hidden="true">
+      <div class="bg-layer bg-sky"></div>
+      <div class="bg-layer bg-celestial"></div>
+      <div class="bg-layer bg-stars"></div>
+      <div class="bg-layer bg-hills"></div>
+      <div class="bg-layer bg-trees"></div>
+      <div class="bg-layer bg-fog"></div>
+      <div class="bg-layer bg-petals">
+        <span class="petal petal-1"></span>
+        <span class="petal petal-2"></span>
+        <span class="petal petal-3"></span>
+        <span class="petal petal-4"></span>
+        <span class="petal petal-5"></span>
+        <span class="petal petal-6"></span>
+        <span class="petal petal-7"></span>
+        <span class="petal petal-8"></span>
+      </div>
+    </div>
+    <div class="page-shell">
+      <header class="site-header">
+        <nav class="navbar container" aria-label="Primary">
+          <a class="brand" data-admin-logo href="#home" aria-label="Chaithra Poojary home">
+            <span class="brand-mark" aria-hidden="true">
+              <svg class="brand-mark-svg" viewBox="0 0 64 64" role="img" aria-hidden="true">
+                <defs>
+                  <linearGradient id="brand-accent-main" x1="10%" y1="10%" x2="90%" y2="90%">
+                    <stop offset="0%" stop-color="#7A5CFF"></stop>
+                    <stop offset="100%" stop-color="#5A8BFF"></stop>
+                  </linearGradient>
+                </defs>
+                <path class="brand-grid" d="M12 12H52M12 24H52M12 36H52M12 48H52M12 12V52M24 12V52M36 12V52M48 12V52"></path>
+                <rect class="brand-frame" x="18" y="16" width="24" height="30" rx="4"></rect>
+                <path class="brand-frame" d="M22 22H38"></path>
+                <path class="brand-frame" d="M22 28H33"></path>
+                <path class="brand-accent" d="M39 34L47 26"></path>
+                <path class="brand-accent" d="M41 24H49V32"></path>
+                <circle class="brand-accent-dot" cx="24" cy="38" r="2.5"></circle>
+              </svg>
+            </span>
+            <span class="brand-lockup">
+              <span class="brand-signature" data-brand-name>Chaithra Poojary</span>
+              <span class="brand-caption">Product Designer</span>
+            </span>
+          </a>
+          <div class="nav-links">
+            <a href="#about">About</a>
+            <a href="#projects">Projects</a>
+            <a href="#experience">Experience</a>
+            <a href="#blogs">Blogs</a>
+            <a href="#contact">Contact</a>
+          </div>
+          <div class="nav-actions">
+            <button
+              class="menu-button"
+              type="button"
+              aria-expanded="false"
+              aria-controls="mobile-menu"
+              data-menu-toggle
+            >
+              <span class="menu-button-label">Menu</span>
+              <span class="menu-button-orb" aria-hidden="true">
+                <span></span>
+                <span></span>
+              </span>
+            </button>
+            <div class="theme-toggle" role="group" aria-label="Theme switcher">
+              <button class="theme-chip" type="button" data-theme-target="light">
+                <span class="theme-chip-icon theme-chip-sun" aria-hidden="true"></span>
+                <span class="theme-chip-label">Light</span>
+              </button>
+              <button class="theme-chip" type="button" data-theme-target="dark">
+                <span class="theme-chip-icon theme-chip-moon" aria-hidden="true"></span>
+                <span class="theme-chip-label">Dark</span>
+              </button>
+              <button
+                class="theme-chip"
+                type="button"
+                data-theme-target="midnight-orchid"
+              >
+                <span class="theme-chip-icon theme-chip-orchid" aria-hidden="true"></span>
+                <span class="theme-chip-label">Orchid</span>
+              </button>
+            </div>
+          </div>
+        </nav>
+        <div class="mobile-menu-wrap container" id="mobile-menu" data-mobile-menu hidden>
+          <div class="mobile-menu glass-card">
+            <div class="mobile-menu-header">
+              <p class="eyebrow">Navigate</p>
+              <button class="mobile-menu-close" type="button" data-menu-close aria-label="Close menu">
+                Close
+              </button>
+            </div>
+            <div class="mobile-menu-links">
+              <a href="#about">About</a>
+              <a href="#projects">Projects</a>
+              <a href="#experience">Experience</a>
+              <a href="#blogs">Blogs</a>
+              <a href="#contact">Contact</a>
+            </div>
+            <div class="mobile-theme-toggle theme-toggle" role="group" aria-label="Theme switcher">
+              <button class="theme-chip" type="button" data-theme-target="light">
+                <span class="theme-chip-icon theme-chip-sun" aria-hidden="true"></span>
+                <span class="theme-chip-label">Light</span>
+              </button>
+              <button class="theme-chip" type="button" data-theme-target="dark">
+                <span class="theme-chip-icon theme-chip-moon" aria-hidden="true"></span>
+                <span class="theme-chip-label">Dark</span>
+              </button>
+              <button class="theme-chip" type="button" data-theme-target="midnight-orchid">
+                <span class="theme-chip-icon theme-chip-orchid" aria-hidden="true"></span>
+                <span class="theme-chip-label">Orchid</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero section" id="home" data-parallax-root>
+          <div class="container hero-grid">
+            <div class="hero-copy hero-text-block reveal">
+              <p class="eyebrow" id="hero-role">Product Designer</p>
+              <h1 id="hero-name">Chaithra Poojary</h1>
+              <p class="hero-text" id="hero-tagline">
+                Designing calm, intelligent products for complex workflows.
+              </p>
+              <div class="hero-actions">
+                <a class="button button-primary" href="#projects">View Projects</a>
+                <a class="button button-secondary" href="#contact">Contact</a>
+              </div>
+            </div>
+            <div class="hero-panel reveal">
+              <div class="hero-graphic glass-card" aria-hidden="true">
+                <div class="hero-canvas">
+                  <img
+                    class="hero-banner-image"
+                    id="hero-banner-image"
+                    src=""
+                    alt="Banner visual"
+                    hidden
+                  />
+                  <div class="hero-wireframe">
+                    <div class="hero-wireframe-toolbar">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                    <div class="hero-wireframe-layout">
+                      <div class="hero-wireframe-tools">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
+                      <div class="hero-wireframe-stage">
+                        <div class="hero-artboard hero-artboard-main">
+                          <div class="hero-artboard-header"></div>
+                          <div class="hero-artboard-block hero-artboard-block-lg"></div>
+                          <div class="hero-artboard-block hero-artboard-block-md"></div>
+                          <div class="hero-artboard-grid">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                          </div>
+                        </div>
+                        <div class="hero-artboard hero-artboard-side">
+                          <div class="hero-artboard-header"></div>
+                          <div class="hero-artboard-stack">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="hero-ui-card hero-ui-floating hero-ui-palette">
+                    <div class="hero-ui-label">UI Kit</div>
+                    <div class="hero-ui-swatches">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                  <div class="hero-ui-card hero-ui-floating hero-ui-prototype">
+                    <div class="hero-ui-proto-node"></div>
+                    <div class="hero-ui-proto-link"></div>
+                    <div class="hero-ui-proto-node hero-ui-proto-node-accent"></div>
+                  </div>
+                  <div class="hero-ui-callout">
+                    <span>Flows</span>
+                    <strong>Prototype + Test</strong>
+                  </div>
+                  <div class="hero-ui-cursor hero-ui-cursor-main"></div>
+                  <div class="hero-ui-cursor hero-ui-cursor-secondary"></div>
+                </div>
+                <div class="hero-card-caption">
+                  <p class="metric-label">Currently focused on</p>
+                  <div class="metric-stack" id="hero-focus-list"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="about">
+          <div class="container">
+            <div class="section-heading reveal">
+              <p class="eyebrow">About</p>
+              <h2>Thoughtful design grounded in systems and detail.</h2>
+            </div>
+            <div class="about-grid">
+              <article class="profile-card glass-card reveal">
+                <div class="profile-visual" id="profile-visual" hidden>
+                  <img id="profile-image" src="" alt="" />
+                </div>
+                <div class="profile-copy">
+                  <h3 id="about-heading">Hi, I’m Chaithra.</h3>
+                  <p id="about-intro"></p>
+                </div>
+              </article>
+              <div class="skills-grid" id="skills-grid"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="projects">
+          <div class="container">
+            <div class="section-heading reveal">
+              <p class="eyebrow">Projects</p>
+              <h2>Selected work across health, AI, and product infrastructure.</h2>
+            </div>
+            <div class="projects-grid" id="projects-grid"></div>
+          </div>
+        </section>
+
+        <section class="section" id="experience">
+          <div class="container">
+            <div class="section-heading reveal">
+              <p class="eyebrow">Experience</p>
+              <h2>Designing with product teams from concept to scale.</h2>
+            </div>
+            <div class="journey reveal" id="experience-list"></div>
+          </div>
+        </section>
+
+        <section class="section" id="blogs">
+          <div class="container">
+            <div class="section-heading reveal">
+              <p class="eyebrow">Blogs</p>
+              <h2>Writing on design clarity, systems, and the shape of AI products.</h2>
+            </div>
+            <div class="blog-list" id="blog-list"></div>
+          </div>
+        </section>
+
+        <section class="section" id="contact">
+          <div class="container">
+            <div class="contact-panel glass-card reveal">
+              <div class="contact-copy">
+                <p class="eyebrow">Contact</p>
+                <h2>Let’s design something thoughtful together.</h2>
+                <p id="contact-copy">
+                  I’m open to product design roles, consulting, and collaborative projects
+                  focused on meaningful digital experiences.
+                </p>
+                <div class="social-links" id="social-links"></div>
+              </div>
+              <form class="contact-form">
+                <label>
+                  Name
+                  <input type="text" name="name" placeholder="Your name" />
+                </label>
+                <label>
+                  Email
+                  <input type="email" name="email" placeholder="you@example.com" />
+                </label>
+                <label>
+                  Message
+                  <textarea
+                    name="message"
+                    rows="5"
+                    placeholder="Tell me a little about your project."
+                  ></textarea>
+                </label>
+                <button class="button button-primary" type="submit">Send Message</button>
+                <p class="form-status" aria-live="polite"></p>
+              </form>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container footer-inner">
+          <p>
+            © 2026 Chaithra Poojary.
+            <span class="admin-entry" data-admin-entry>All rights reserved.</span>
+          </p>
+        </div>
+      </footer>
+    </div>
+
+    <script src="./portfolio-data.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

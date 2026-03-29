@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Studio | Chaithra Poojary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Allura&display=swap"
+      rel="stylesheet"
+    />
+    <link id="dynamic-favicon" rel="icon" href="" />
+    <link rel="stylesheet" href="./admin.css" />
+  </head>
+  <body class="admin-body">
+    <main class="studio-shell">
+      <section class="login-view" id="login-view">
+        <div class="login-card admin-card">
+          <p class="admin-kicker">Private Studio</p>
+          <h1>Portfolio admin</h1>
+          <p class="admin-muted">
+            Manage projects, case studies, writing, experience, and profile content from one calm workspace.
+          </p>
+          <form id="login-form" class="admin-form-stack">
+            <label>
+              Email
+              <input
+                type="email"
+                id="admin-email"
+                placeholder="Enter admin email"
+                required
+              />
+            </label>
+            <label>
+              Passcode
+              <input type="password" id="admin-passcode" placeholder="Enter passcode" required />
+            </label>
+            <button class="admin-button admin-button-primary" type="submit">Enter Studio</button>
+            <p class="admin-status" id="login-status" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+
+      <section class="dashboard-view is-hidden" id="dashboard-view">
+        <aside class="studio-sidebar admin-card">
+          <div class="studio-brand">
+            <a class="brand studio-brand-link" href="/" aria-label="Chaithra Poojary portfolio">
+              <span class="brand-mark" aria-hidden="true">
+                <svg class="brand-mark-svg" viewBox="0 0 64 64" role="img" aria-hidden="true">
+                  <defs>
+                    <linearGradient id="brand-accent-admin" x1="10%" y1="10%" x2="90%" y2="90%">
+                      <stop offset="0%" stop-color="#7A5CFF"></stop>
+                      <stop offset="100%" stop-color="#5A8BFF"></stop>
+                    </linearGradient>
+                  </defs>
+                  <path class="brand-grid" d="M12 12H52M12 24H52M12 36H52M12 48H52M12 12V52M24 12V52M36 12V52M48 12V52"></path>
+                  <rect class="brand-frame" x="18" y="16" width="24" height="30" rx="4"></rect>
+                  <path class="brand-frame" d="M22 22H38"></path>
+                  <path class="brand-frame" d="M22 28H33"></path>
+                  <path class="brand-accent" d="M39 34L47 26"></path>
+                  <path class="brand-accent" d="M41 24H49V32"></path>
+                  <circle class="brand-accent-dot" cx="24" cy="38" r="2.5"></circle>
+                </svg>
+              </span>
+              <span class="brand-lockup">
+                <span class="brand-signature">Chaithra Poojary</span>
+                <span class="brand-caption">Product Designer</span>
+              </span>
+            </a>
+          </div>
+          <nav class="studio-nav" aria-label="Studio sections">
+            <button class="studio-nav-item is-active" type="button" data-section-target="overview">
+              Overview
+            </button>
+            <button class="studio-nav-item" type="button" data-section-target="projects">
+              Projects
+            </button>
+            <button class="studio-nav-item" type="button" data-section-target="blogs">
+              Blogs
+            </button>
+            <button class="studio-nav-item" type="button" data-section-target="experience">
+              Experience
+            </button>
+            <button class="studio-nav-item" type="button" data-section-target="profile">
+              Profile
+            </button>
+          </nav>
+        </aside>
+
+        <div class="studio-main">
+          <header class="studio-header admin-card">
+            <div class="studio-header-copy">
+              <p class="admin-kicker">Case Study Studio</p>
+              <h1>Chaithra Poojary</h1>
+              <p class="admin-muted">Create structured UX stories, publish writing, and keep your portfolio current.</p>
+            </div>
+            <div class="studio-header-actions">
+              <span class="admin-avatar">CP</span>
+              <button class="admin-button" id="logout-button" type="button">Logout</button>
+            </div>
+          </header>
+
+          <section class="studio-section" data-section="overview">
+            <div class="admin-grid admin-grid-stats" id="overview-stats"></div>
+            <div class="admin-card">
+              <h2>Recent focus</h2>
+              <p class="admin-muted">
+                Featured projects, highlighted posts, and the current profile summary are surfaced here.
+              </p>
+              <div class="overview-feature-list" id="overview-feature-list"></div>
+            </div>
+          </section>
+
+          <section class="studio-section is-hidden" data-section="projects">
+            <div class="admin-card section-card">
+              <div class="section-topline section-topline-spacious">
+                <div>
+                  <p class="admin-kicker">Project Library</p>
+                  <h2>Projects Manager</h2>
+                  <p class="admin-muted">
+                    Review published case studies and open a separate workspace when you want to build or edit one.
+                  </p>
+                </div>
+                <button class="admin-button admin-button-primary" type="button" id="new-project-button">New project</button>
+              </div>
+              <div class="manager-list project-manager-grid" id="project-list"></div>
+              <div class="admin-subsection">
+                <div class="section-topline">
+                  <div>
+                    <p class="admin-kicker">Project Media</p>
+                    <h3>Project Card Images</h3>
+                  </div>
+                </div>
+                <div class="dashboard-media-list" id="project-media-list"></div>
+                <div class="form-actions">
+                  <button class="admin-button admin-button-primary" type="button" id="save-project-media-button">Save project images</button>
+                  <p class="admin-status" id="project-media-status"></p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="studio-section is-hidden" data-section="project-editor">
+            <div class="admin-card project-editor-shell">
+              <div class="project-editor-toolbar">
+                <button class="admin-button" type="button" id="project-back-button">Back to projects</button>
+                <p class="admin-muted">This builder opens in its own workspace to keep the flow lighter and easier to scan.</p>
+              </div>
+
+              <div class="project-editor-hero">
+                <div>
+                  <p class="admin-kicker">Case Study Builder</p>
+                  <h2 id="project-editor-title">Start a new case study</h2>
+                  <p class="admin-muted">
+                    Move step by step, skip what you do not need yet, and come back later with your draft saved.
+                  </p>
+                </div>
+                <div class="project-editor-actions">
+                  <button class="admin-button" type="button" id="project-reset-button">Reset</button>
+                  <button class="admin-button admin-button-primary" type="button" id="project-save-button">Publish project</button>
+                </div>
+              </div>
+
+              <section class="project-template-stage" id="project-template-stage">
+                <div class="project-template-header">
+                  <div>
+                    <p class="admin-kicker">Step 1</p>
+                    <h3>Select a template</h3>
+                  </div>
+                  <p class="admin-muted">
+                    Choose a structure first, then the studio will adapt the case study flow and empathy-map styling.
+                  </p>
+                </div>
+                <div class="template-grid" id="template-grid"></div>
+              </section>
+
+              <section class="project-wizard is-hidden" id="project-wizard">
+                <div class="wizard-head">
+                  <div class="wizard-progress-meta">
+                    <p class="admin-kicker" id="wizard-step-label">Step 1 of 12</p>
+                    <h3 id="wizard-step-title">Project Overview</h3>
+                  </div>
+                  <div class="wizard-progress-track">
+                    <span id="wizard-progress-fill"></span>
+                  </div>
+                </div>
+
+                <div class="wizard-steps" id="wizard-step-tabs"></div>
+                <div class="wizard-body" id="wizard-step-content"></div>
+
+                <div class="wizard-actions">
+                  <button class="admin-button" type="button" id="wizard-prev-button">Previous</button>
+                  <div class="wizard-actions-right">
+                    <button class="admin-button" type="button" id="wizard-skip-button">Skip step</button>
+                    <button class="admin-button" type="button" id="wizard-save-draft-button">Save draft</button>
+                    <button class="admin-button admin-button-primary" type="button" id="wizard-next-button">Next</button>
+                  </div>
+                </div>
+                <div class="form-actions project-editor-footer">
+                  <button class="admin-button" type="button" id="delete-project-button">Delete</button>
+                  <p class="admin-status" id="project-status"></p>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="studio-section is-hidden" data-section="blogs">
+            <div class="admin-card section-card">
+              <div class="section-topline section-topline-spacious">
+                <div>
+                  <p class="admin-kicker">Writing Library</p>
+                  <h2>Blog Manager</h2>
+                  <p class="admin-muted">
+                    Manage blog posts here, then open a separate writing workspace to create or edit the full article.
+                  </p>
+                </div>
+                <button class="admin-button admin-button-primary" type="button" id="new-blog-button">New blog</button>
+              </div>
+              <div class="manager-list" id="blog-list-admin"></div>
+              <div class="admin-subsection">
+                <div class="section-topline">
+                  <div>
+                    <p class="admin-kicker">Blog Media</p>
+                    <h3>Blog Cover Images</h3>
+                  </div>
+                </div>
+                <div class="dashboard-media-list" id="blog-media-list"></div>
+                <div class="form-actions">
+                  <button class="admin-button admin-button-primary" type="button" id="save-blog-media-button">Save blog images</button>
+                  <p class="admin-status" id="blog-media-status"></p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="studio-section is-hidden" data-section="blog-editor">
+            <form class="admin-card admin-form-stack blog-editor blog-editor-shell" id="blog-form">
+              <div class="project-editor-toolbar">
+                <button class="admin-button" type="button" id="blog-back-button">Back to blogs</button>
+                <p class="admin-muted">Write in a focused workspace, while cover images stay managed from the blog media section.</p>
+              </div>
+
+              <div class="project-editor-hero">
+                <div>
+                  <p class="admin-kicker">Reading Layout</p>
+                  <h2 id="blog-editor-title">Blog Editor</h2>
+                  <p class="admin-muted">
+                    Draft long-form content, keep the structure clear, and publish when the reading flow feels right.
+                  </p>
+                </div>
+              </div>
+              <input type="hidden" id="blog-id" />
+              <label>Title <input type="text" id="blog-title" required /></label>
+              <label>Preview <input type="text" id="blog-preview" required /></label>
+              <label>Summary <textarea id="blog-summary" rows="4"></textarea></label>
+              <div class="field-grid">
+                <label>Date <input type="date" id="blog-date" required /></label>
+                <label>Tags <input type="text" id="blog-tags" placeholder="AI, Systems" /></label>
+              </div>
+              <label class="inline-toggle">
+                <input type="checkbox" id="blog-featured" />
+                Featured post
+              </label>
+              <div class="editor-group">
+                <span>Content</span>
+                <div class="editor-toolbar">
+                  <button class="admin-button" type="button" data-command="bold" data-editor-target="blog-content">Bold</button>
+                  <button class="admin-button" type="button" data-command="italic" data-editor-target="blog-content">Italic</button>
+                  <button class="admin-button" type="button" data-command="insertUnorderedList" data-editor-target="blog-content">List</button>
+                  <button class="admin-button" type="button" id="insert-blog-image-button">Inline image</button>
+                </div>
+                <input class="is-hidden" type="file" id="blog-inline-image-input" accept="image/*" />
+                <div class="rich-editor rich-editor-lg" data-editor="blog-content" contenteditable="true"></div>
+              </div>
+              <div class="form-actions">
+                <button class="admin-button admin-button-primary" type="submit">Save blog</button>
+                <button class="admin-button" type="button" id="delete-blog-button">Delete</button>
+              </div>
+              <p class="admin-status" id="blog-status"></p>
+            </form>
+          </section>
+
+          <section class="studio-section is-hidden" data-section="experience">
+            <div class="split-layout single-column">
+              <div class="admin-card">
+                <div class="section-topline">
+                  <h2>Experience Editor</h2>
+                  <button class="admin-button" type="button" id="new-experience-button">Add role</button>
+                </div>
+                <div class="experience-admin-list" id="experience-admin-list"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="studio-section is-hidden" data-section="profile">
+            <form class="profile-layout" id="profile-form">
+              <div class="admin-card admin-form-stack">
+                <p class="admin-kicker">Identity</p>
+                <h2>Profile & About</h2>
+                <label>Name <input type="text" id="profile-name" required /></label>
+                <label>First name <input type="text" id="profile-first-name" required /></label>
+                <label>Role <input type="text" id="profile-role" required /></label>
+                <label>Tagline <input type="text" id="profile-tagline" required /></label>
+                <label>About <textarea id="profile-about" rows="5"></textarea></label>
+                <label>Contact copy <textarea id="profile-contact-copy" rows="4"></textarea></label>
+                <label>Profile image <input type="file" id="profile-image-input" accept="image/*" /></label>
+                <button class="admin-button" type="button" id="remove-profile-image-button">Remove profile image</button>
+              </div>
+
+              <div class="admin-card admin-form-stack">
+                <p class="admin-kicker">Brand Text</p>
+                <h2>Logo Text</h2>
+                <label>Signature text <input type="text" id="brand-display-name" /></label>
+                <label>Caption text <input type="text" id="brand-caption-text" /></label>
+                <p class="admin-muted">
+                  Use this area only for the logo lockup text. It stays separate from the profile fields above.
+                </p>
+              </div>
+
+              <div class="admin-card admin-form-stack">
+                <p class="admin-kicker">Brand Icon</p>
+                <h2>Logo Accent</h2>
+                <div class="brand-icon-preview" id="brand-icon-preview" aria-hidden="true"></div>
+                <label>Custom logo icon <input type="file" id="brand-icon-image" accept="image/*" /></label>
+                <div class="field-grid">
+                  <label>Accent start <input type="color" id="brand-accent-start" /></label>
+                  <label>Accent end <input type="color" id="brand-accent-end" /></label>
+                </div>
+                <label>Accent dot <input type="color" id="brand-accent-dot" /></label>
+                <p class="admin-muted">
+                  Adjust the icon accent independently from the logo text so the identity system stays flexible.
+                </p>
+              </div>
+
+              <div class="admin-card admin-form-stack">
+                <p class="admin-kicker">Favicon</p>
+                <h2>Browser Icon</h2>
+                <div class="brand-icon-preview favicon-preview" id="favicon-preview" aria-hidden="true"></div>
+                <label>Custom favicon <input type="file" id="favicon-image" accept="image/*" /></label>
+                <p class="admin-muted">
+                  Upload a dedicated favicon for browser tabs. If left empty, the site will keep using the generated logo favicon.
+                </p>
+              </div>
+
+              <div class="admin-card admin-form-stack">
+                <p class="admin-kicker">Studio Access</p>
+                <h2>Admin Login</h2>
+                <label>Admin email <input type="email" id="admin-login-email-display" readonly /></label>
+                <label>New password <input type="password" id="admin-password-input" placeholder="Set a new password" /></label>
+                <p class="admin-muted">
+                  You can change the admin password here at any time. No current-password verification is required.
+                </p>
+              </div>
+
+              <div class="admin-card admin-form-stack">
+                <p class="admin-kicker">Portfolio System</p>
+                <h2>Socials & Skills</h2>
+                <label>Focus area 1 <input type="text" id="focus-one" /></label>
+                <label>Focus area 2 <input type="text" id="focus-two" /></label>
+                <label>Focus area 3 <input type="text" id="focus-three" /></label>
+                <label>LinkedIn <input type="url" id="social-linkedin" /></label>
+                <label>Dribbble <input type="url" id="social-dribbble" /></label>
+                <label>GitHub <input type="url" id="social-github" /></label>
+                <label>UX skills <input type="text" id="skills-ux" /></label>
+                <label>UI skills <input type="text" id="skills-ui" /></label>
+                <label>Tools <input type="text" id="skills-tools" /></label>
+                <label>Systems thinking <input type="text" id="skills-systems" /></label>
+              </div>
+
+              <div class="admin-card admin-form-stack">
+                <p class="admin-kicker">Homepage Media</p>
+                <h2>Banner Image</h2>
+                <p class="admin-muted">
+                  Update the homepage hero/banner visual here.
+                </p>
+                <div class="brand-icon-preview banner-preview" id="banner-preview" aria-hidden="true"></div>
+                <label>Banner image <input type="file" id="profile-banner-image" accept="image/*" /></label>
+                <p class="admin-muted">
+                  Banner changes are saved when you click <strong>Save profile</strong>.
+                </p>
+              </div>
+
+              <div class="admin-card admin-form-stack">
+                <p class="admin-kicker">Save Changes</p>
+                <h2>Profile Actions</h2>
+                <div class="form-actions">
+                  <button class="admin-button admin-button-primary" type="submit">Save profile</button>
+                  <button class="admin-button" type="button" id="reset-data-button">Reset content</button>
+                </div>
+                <p class="admin-status" id="profile-status"></p>
+              </div>
+            </form>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="../portfolio-data.js"></script>
+    <script src="./admin.js"></script>
+  </body>
+</html>
