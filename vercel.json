@@ -1,0 +1,36 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/studio",
+      "destination": "/admin",
+      "permanent": false
+    },
+    {
+      "source": "/studio/index",
+      "destination": "/admin",
+      "permanent": false
+    },
+    {
+      "source": "/admin-login",
+      "destination": "/admin",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/admin",
+      "destination": "/studio/index"
+    },
+    {
+      "source": "/admin.css",
+      "destination": "/studio/admin.css"
+    },
+    {
+      "source": "/admin.js",
+      "destination": "/studio/admin.js"
+    }
+  ]
+}
