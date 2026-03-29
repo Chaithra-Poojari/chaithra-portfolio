@@ -1456,24 +1456,24 @@ body[data-theme="midnight-orchid"] .brand-mark {
   position: fixed;
   inset: 0;
   z-index: 90;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.2rem;
+  display: block;
 }
 
 .exclusive-modal-backdrop {
-  position: absolute;
+  position: fixed;
   inset: 0;
   background: rgba(10, 10, 18, 0.42);
   backdrop-filter: blur(10px);
 }
 
 .exclusive-modal-card {
-  position: relative;
+  position: fixed;
+  top: 50%;
+  left: 50%;
   z-index: 1;
-  width: min(100%, 30rem);
+  width: min(calc(100vw - 2rem), 30rem);
   max-height: calc(100vh - 2.4rem);
+  transform: translate(-50%, -50%);
   padding: 1.45rem;
   border-radius: 1.5rem;
   display: grid;
