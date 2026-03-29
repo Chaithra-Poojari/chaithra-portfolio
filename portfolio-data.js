@@ -61,12 +61,12 @@ const defaultPortfolioData = {
     name: "Chaithra Poojary",
     firstName: "Chaithra",
     role: "Product Designer",
-    heroImage: "/assets/project-lumen.svg",
+    heroImage: "/assets/banner.png",
     brand: {
       displayName: "Chaithra Poojary",
       caption: "Product Designer",
-      iconImage: "/assets/project-orbit.svg",
-      faviconImage: "/assets/project-orbit.svg",
+      iconImage: "/assets/Logo.png",
+      faviconImage: "/assets/Logo.svg",
       accentStart: "#7A5CFF",
       accentEnd: "#5A8BFF",
       accentDot: "#7b72ed"
