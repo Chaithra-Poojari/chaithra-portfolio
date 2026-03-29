@@ -417,6 +417,20 @@
                 </div>
                 <p class="admin-status" id="profile-status"></p>
               </div>
+
+              <div class="admin-card admin-form-stack">
+                <p class="admin-kicker">Content Backup</p>
+                <h2>Move Data To Vercel</h2>
+                <p class="admin-muted">
+                  Admin uploads are stored per browser and per domain. Export your local content, then import it on the live Vercel admin to bring over banner, logo, and other saved updates.
+                </p>
+                <div class="form-actions">
+                  <button class="admin-button" type="button" id="export-portfolio-data-button">Export content JSON</button>
+                  <button class="admin-button" type="button" id="import-portfolio-data-button">Import content JSON</button>
+                </div>
+                <input class="is-hidden" type="file" id="portfolio-data-import" accept="application/json" />
+                <p class="admin-status" id="portfolio-data-transfer-status"></p>
+              </div>
             </form>
           </section>
         </div>

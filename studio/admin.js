@@ -49,6 +49,10 @@ const blogMediaStatus = document.getElementById("blog-media-status");
 const removeProfileImageButton = document.getElementById("remove-profile-image-button");
 const exclusiveProjectList = document.getElementById("exclusive-project-list");
 const newExclusiveProjectButton = document.getElementById("new-exclusive-project-button");
+const exportPortfolioDataButton = document.getElementById("export-portfolio-data-button");
+const importPortfolioDataButton = document.getElementById("import-portfolio-data-button");
+const portfolioDataImportInput = document.getElementById("portfolio-data-import");
+const portfolioDataTransferStatus = document.getElementById("portfolio-data-transfer-status");
 
 let portfolioData = window.getPortfolioData();
 let selectedProjectId = portfolioData.projects[0]?.id || "";
@@ -399,6 +403,11 @@ const updateImagePreview = (elementId, image, emptyLabel = "No image") => {
     : `<span>${emptyLabel}</span>`;
 };
 
+const syncStudioSelections = () => {
+  selectedProjectId = portfolioData.projects[0]?.id || "";
+  selectedBlogId = portfolioData.blogs[0]?.id || "";
+};
+
 const saveAndRefresh = (message, statusElement = null) => {
   try {
     window.savePortfolioData(portfolioData);
@@ -421,6 +430,55 @@ const saveAndRefresh = (message, statusElement = null) => {
       setStatus(statusElement, fallbackMessage);
     }
     return false;
+  }
+};
+
+const downloadPortfolioBackup = () => {
+  const payload = JSON.stringify(portfolioData, null, 2);
+  const blob = new Blob([payload], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `cpw-portfolio-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+  setStatus(portfolioDataTransferStatus, "Content JSON exported.");
+};
+
+const importPortfolioBackup = async (file) => {
+  if (!file) {
+    return;
+  }
+
+  try {
+    const raw = await file.text();
+    const importedData = JSON.parse(raw);
+    window.savePortfolioData(importedData);
+    portfolioData = window.getPortfolioData();
+    syncStudioSelections();
+    currentProjectDraft = null;
+    currentProjectStep = 0;
+    pendingProjectMedia = {};
+    pendingBlogMedia = {};
+    pendingProfileUploads = {
+      profileImage: "",
+      bannerImage: "",
+      brandIcon: "",
+      favicon: ""
+    };
+    removeProfileImageOnSave = false;
+    renderStudioBrand();
+    renderProjectWizard();
+    saveAndRefresh("Content imported successfully.", portfolioDataTransferStatus);
+  } catch {
+    setStatus(
+      portfolioDataTransferStatus,
+      "Import failed. Please choose a valid exported JSON file."
+    );
+  } finally {
+    portfolioDataImportInput.value = "";
   }
 };
 
@@ -1800,12 +1858,21 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
 
 document.getElementById("reset-data-button").addEventListener("click", () => {
   portfolioData = window.resetPortfolioData();
-  selectedProjectId = portfolioData.projects[0]?.id || "";
-  selectedBlogId = portfolioData.blogs[0]?.id || "";
+  syncStudioSelections();
   currentProjectDraft = null;
   localStorage.removeItem(PROJECT_DRAFT_STORAGE_KEY);
   saveAndRefresh("Portfolio content reset to defaults.", document.getElementById("profile-status"));
   renderProjectWizard();
+});
+
+exportPortfolioDataButton?.addEventListener("click", downloadPortfolioBackup);
+
+importPortfolioDataButton?.addEventListener("click", () => {
+  portfolioDataImportInput?.click();
+});
+
+portfolioDataImportInput?.addEventListener("change", async () => {
+  await importPortfolioBackup(portfolioDataImportInput.files?.[0]);
 });
 
 renderTemplateSelection();
