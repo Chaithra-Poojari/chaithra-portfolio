@@ -1,5 +1,7 @@
 const pageType = document.body.dataset.page || "portfolio";
 const CONTACT_EMAIL = "chaithrapoojari1234@gmail.com";
+const EXCLUSIVE_UNLOCKED_KEY = "cpw-exclusive-projects-unlocked";
+const EXCLUSIVE_PASSWORD_SESSION_KEY = "cpw-exclusive-project-password";
 const themeButtons = document.querySelectorAll("[data-theme-target]");
 const revealItems = document.querySelectorAll(".reveal");
 const savedTheme = localStorage.getItem("portfolio-theme");
@@ -15,7 +17,18 @@ const brandName = document.querySelector("[data-brand-name]");
 const brandCaption = document.querySelector(".brand-caption");
 const faviconLink = document.getElementById("dynamic-favicon");
 const sceneSections = document.querySelectorAll("main section[id]");
+const exclusiveSeparator = document.getElementById("exclusive-separator");
+const exclusiveProjectsShell = document.getElementById("exclusive-projects-shell");
+const exclusiveProjectsGrid = document.getElementById("exclusive-projects-grid");
+const exclusiveSectionTrigger = document.getElementById("exclusive-section-trigger");
+const exclusiveModal = document.getElementById("exclusive-modal");
+const exclusiveUnlockForm = document.getElementById("exclusive-unlock-form");
+const exclusivePasswordInput = document.getElementById("exclusive-password-input");
+const exclusiveUnlockStatus = document.getElementById("exclusive-unlock-status");
+const exclusiveModalHint = document.getElementById("exclusive-modal-hint");
 let footerClickTimer = null;
+let exclusiveUnlockTarget = "";
+let unlockedExclusiveProjects = [];
 
 const buildDefaultBrandMark = (gradientId) => `
   <svg class="brand-mark-svg" viewBox="0 0 64 64" role="img" aria-hidden="true">
@@ -144,6 +157,135 @@ const applyBrandSettings = (profile) => {
     .forEach((dot) => dot.setAttribute("fill", brandSettings.accentDot));
 };
 
+const setRobotsNoIndex = (enabled) => {
+  let meta = document.querySelector('meta[name="robots"]');
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.name = "robots";
+    document.head.append(meta);
+  }
+
+  meta.content = enabled ? "noindex, nofollow, noarchive" : "index, follow";
+};
+
+const getExclusivePasswordFromSession = () =>
+  sessionStorage.getItem(EXCLUSIVE_PASSWORD_SESSION_KEY) || "";
+
+const setExclusiveSession = (password) => {
+  sessionStorage.setItem(EXCLUSIVE_UNLOCKED_KEY, "true");
+  sessionStorage.setItem(EXCLUSIVE_PASSWORD_SESSION_KEY, password);
+};
+
+const clearExclusiveSession = () => {
+  sessionStorage.removeItem(EXCLUSIVE_UNLOCKED_KEY);
+  sessionStorage.removeItem(EXCLUSIVE_PASSWORD_SESSION_KEY);
+};
+
+const isExclusiveUnlocked = () =>
+  sessionStorage.getItem(EXCLUSIVE_UNLOCKED_KEY) === "true";
+
+const buildPublicProjectCardMarkup = (project, className = "") => `
+  <a class="${`project-card reveal ${className}`.trim()}" href="/projects/case-study.html?id=${project.id}">
+    <img src="${project.thumbnail}" alt="${project.title} thumbnail" class="project-thumb" />
+    <div class="project-body">
+      <div class="project-topline">
+        <h3>${project.title}</h3>
+        <span>${project.category}</span>
+      </div>
+      <p>${project.description}</p>
+      <div class="tag-row">
+        ${project.tags.map((tag) => `<span>${tag}</span>`).join("")}
+      </div>
+    </div>
+  </a>
+`;
+
+const buildExclusivePreviewCardMarkup = (project, index, total) => `
+  <article class="project-card exclusive-project-card exclusive-project-card-locked reveal" data-exclusive-preview="${project.id}">
+    <div class="exclusive-project-card-inner">
+      <div class="exclusive-project-card-copy">
+        <div class="exclusive-project-topline">
+          <span class="exclusive-project-badge">
+            <span class="exclusive-project-badge-icon" aria-hidden="true"></span>
+            Exclusive
+          </span>
+        </div>
+        <div class="project-topline">
+          <h3>${project.title}</h3>
+          <span>${project.category}</span>
+        </div>
+        <p>${index === 0 ? `${total} protected case studies available after unlock.` : project.summary}</p>
+      </div>
+    </div>
+  </article>
+`;
+
+const buildExclusiveUnlockedCardMarkup = (project) => `
+  <a class="project-card reveal exclusive-project-card exclusive-project-card-unlocked" href="/projects/case-study.html?id=${project.id}">
+    <div class="exclusive-project-card-inner">
+      <div class="exclusive-project-card-copy">
+        <div class="exclusive-project-topline">
+          <span class="exclusive-project-badge">
+            <span class="exclusive-project-badge-icon" aria-hidden="true"></span>
+            Exclusive
+          </span>
+        </div>
+        <div class="project-topline">
+          <h3>${project.title}</h3>
+          <span>${project.category}</span>
+        </div>
+        <p>${project.description}</p>
+        <div class="tag-row">
+          ${project.tags.map((tag) => `<span>${tag}</span>`).join("")}
+        </div>
+      </div>
+    </div>
+  </a>
+`;
+
+const decryptExclusiveProjects = async (exclusiveProjects, password) =>
+  Promise.all(
+    exclusiveProjects.map(async (project) => {
+      const decryptedProject = await window.decryptExclusiveProject(
+        project.encryptedPayload,
+        password
+      );
+
+      return {
+        ...decryptedProject,
+        id: project.id,
+        title: decryptedProject.title || project.title,
+        category: decryptedProject.category || project.category,
+        description: decryptedProject.description || project.summary,
+        thumbnail: decryptedProject.thumbnail || project.thumbnail,
+        coverImage: decryptedProject.coverImage || project.coverImage
+      };
+    })
+  );
+
+const openExclusiveModal = (projectId = "") => {
+  if (!exclusiveModal) {
+    return;
+  }
+
+  exclusiveUnlockTarget = projectId;
+  exclusiveUnlockStatus.textContent = "";
+  exclusivePasswordInput.value = "";
+  exclusiveModal.hidden = false;
+  document.body.classList.add("modal-open");
+  exclusivePasswordInput.focus();
+};
+
+const closeExclusiveModal = () => {
+  if (!exclusiveModal) {
+    return;
+  }
+
+  exclusiveModal.hidden = true;
+  document.body.classList.remove("modal-open");
+  exclusiveUnlockTarget = "";
+};
+
 const navigateWithTransition = (href) => {
   if (!href) {
     return;
@@ -225,25 +367,62 @@ const renderProjects = (projects) => {
     return;
   }
 
-  projectsGrid.innerHTML = projects
-    .map(
-      (project) => `
-        <a class="project-card reveal" href="/projects/case-study.html?id=${project.id}">
-          <img src="${project.thumbnail}" alt="${project.title} thumbnail" class="project-thumb" />
-          <div class="project-body">
-            <div class="project-topline">
-              <h3>${project.title}</h3>
-              <span>${project.category}</span>
-            </div>
-            <p>${project.description}</p>
-            <div class="tag-row">
-              ${project.tags.map((tag) => `<span>${tag}</span>`).join("")}
-            </div>
-          </div>
-        </a>
-      `
-    )
-    .join("");
+  projectsGrid.innerHTML = projects.map((project) => buildPublicProjectCardMarkup(project)).join("");
+};
+
+const renderExclusiveProjects = async (data) => {
+  if (!exclusiveSeparator || !exclusiveProjectsShell || !exclusiveProjectsGrid) {
+    return;
+  }
+
+  const exclusiveProjects = data.exclusiveProjects || [];
+  const hasExclusiveProjects = exclusiveProjects.length > 0;
+  exclusiveSeparator.hidden = !hasExclusiveProjects;
+  exclusiveProjectsShell.hidden = !hasExclusiveProjects;
+
+  if (!hasExclusiveProjects) {
+    exclusiveProjectsGrid.innerHTML = "";
+    unlockedExclusiveProjects = [];
+    return;
+  }
+
+  const hint = data.settings?.exclusiveAccess?.hint || "Enter password from my CV.";
+  if (exclusiveSectionTrigger) {
+    exclusiveSectionTrigger.textContent = hint;
+  }
+  if (exclusiveModalHint) {
+    exclusiveModalHint.textContent = hint;
+  }
+
+  // Password unlock flow:
+  // 1. The public page renders only preview metadata for exclusive projects.
+  // 2. Full case-study data stays encrypted until the recruiter enters the correct password.
+  // 3. A successful unlock stores the password only in sessionStorage for the current tab/session.
+  const sessionPassword = getExclusivePasswordFromSession();
+  if (isExclusiveUnlocked() && sessionPassword) {
+    try {
+      unlockedExclusiveProjects = await decryptExclusiveProjects(exclusiveProjects, sessionPassword);
+    } catch {
+      clearExclusiveSession();
+      unlockedExclusiveProjects = [];
+    }
+  } else {
+    unlockedExclusiveProjects = [];
+  }
+
+  if (unlockedExclusiveProjects.length) {
+    exclusiveProjectsGrid.innerHTML = unlockedExclusiveProjects
+      .map((project) => buildExclusiveUnlockedCardMarkup(project))
+      .join("");
+    exclusiveProjectsShell.classList.add("is-unlocked");
+  } else {
+    exclusiveProjectsGrid.innerHTML = exclusiveProjects
+      .map((project, index) =>
+        buildExclusivePreviewCardMarkup(project, index, exclusiveProjects.length)
+      )
+      .join("");
+    exclusiveProjectsShell.classList.remove("is-unlocked");
+  }
 };
 
 const renderExperience = (experience) => {
@@ -447,7 +626,7 @@ const renderSocials = (socials) => {
   socialLinks.innerHTML = markup;
 };
 
-const renderPortfolioPage = () => {
+const renderPortfolioPage = async () => {
   if (pageType !== "portfolio") {
     return;
   }
@@ -484,12 +663,13 @@ const renderPortfolioPage = () => {
   renderFocusAreas(data.profile.focusAreas);
   renderSkills(data.profile.skills);
   renderProjects(data.projects);
+  await renderExclusiveProjects(data);
   renderExperience(data.experience);
   renderBlogs(data.blogs);
   renderSocials(data.profile.socials);
 };
 
-const renderCaseStudyPage = () => {
+const renderCaseStudyPage = async () => {
   if (pageType !== "case-study") {
     return;
   }
@@ -497,7 +677,61 @@ const renderCaseStudyPage = () => {
   const params = new URLSearchParams(window.location.search);
   const projectId = params.get("id");
   const data = window.getPortfolioData();
-  const project = data.projects.find((item) => item.id === projectId) || data.projects[0];
+  const publicProject = data.projects.find((item) => item.id === projectId);
+  const exclusivePreview = (data.exclusiveProjects || []).find((item) => item.id === projectId);
+  let project = publicProject || data.projects[0];
+
+  if (!publicProject && exclusivePreview) {
+    setRobotsNoIndex(true);
+    const password = getExclusivePasswordFromSession();
+
+    if (password) {
+      try {
+        project = await window.decryptExclusiveProject(exclusivePreview.encryptedPayload, password);
+      } catch {
+        clearExclusiveSession();
+      }
+    }
+
+    if (!password || !project || project.id !== exclusivePreview.id) {
+      document.title = `Exclusive Case Study | ${data.profile.name}`;
+      applyBrandSettings(data.profile);
+      document.body.dataset.caseTemplate = exclusivePreview.template || "ai-saas";
+      document.getElementById("case-title").textContent = exclusivePreview.title;
+      document.getElementById("case-intro").textContent = exclusivePreview.summary;
+      document.getElementById("case-image").src = exclusivePreview.thumbnail;
+      document.getElementById("case-image").alt = `${exclusivePreview.title} preview`;
+      document.getElementById("case-role").textContent = "Confidential";
+      document.getElementById("case-scope").textContent = "Password protected";
+      document.getElementById("case-timeline").textContent = "Shared on request";
+      document.getElementById("case-outcome").textContent = "Available after unlock";
+      document.getElementById("case-content").innerHTML = `
+        <section class="reveal exclusive-case-lock">
+          <p class="eyebrow">Exclusive Access</p>
+          <h2>This case study is available after password entry.</h2>
+          <p>${data.settings?.exclusiveAccess?.hint || "Enter password from my CV."}</p>
+          <button class="button button-primary" type="button" id="exclusive-case-unlock-button">
+            Enter password from my CV.
+          </button>
+          <p class="form-status" id="exclusive-case-status" aria-live="polite"></p>
+        </section>
+      `;
+      document
+        .getElementById("exclusive-case-unlock-button")
+        ?.addEventListener("click", () => openExclusiveModal(exclusivePreview.id));
+      return;
+    }
+
+    project = {
+      ...project,
+      id: exclusivePreview.id,
+      title: project.title || exclusivePreview.title,
+      category: project.category || exclusivePreview.category,
+      description: project.description || exclusivePreview.summary
+    };
+  } else {
+    setRobotsNoIndex(false);
+  }
 
   document.title = `${project.title} Case Study | ${data.profile.name}`;
   applyBrandSettings(data.profile);
@@ -864,6 +1098,55 @@ menuClose?.addEventListener("click", () => {
   setMenuState(false);
 });
 
+exclusiveSectionTrigger?.addEventListener("click", () => {
+  openExclusiveModal();
+});
+
+document.querySelectorAll("[data-exclusive-close]").forEach((button) => {
+  button.addEventListener("click", closeExclusiveModal);
+});
+
+exclusiveUnlockForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const password = exclusivePasswordInput.value.trim();
+  const data = window.getPortfolioData();
+
+  if (!password) {
+    exclusiveUnlockStatus.textContent = "Enter the password from the CV to continue.";
+    return;
+  }
+
+  try {
+    exclusiveUnlockStatus.textContent = "Unlocking projects...";
+    const isValid = await window.verifyExclusivePassword(
+      password,
+      data.settings?.exclusiveAccess || {}
+    );
+
+    if (!isValid) {
+      exclusiveUnlockStatus.textContent = "Incorrect password. Please try again.";
+      return;
+    }
+
+    // Store the valid password for this tab so exclusive previews can be decrypted
+    // without affecting the rest of the website or making the section public by default.
+    setExclusiveSession(password);
+    const nextExclusiveTarget = exclusiveUnlockTarget;
+    closeExclusiveModal();
+
+    if (pageType === "portfolio") {
+      await renderExclusiveProjects(window.getPortfolioData());
+      refreshRevealObserver();
+    }
+
+    if (pageType === "case-study" && nextExclusiveTarget) {
+      navigateWithTransition(`/projects/case-study.html?id=${nextExclusiveTarget}`);
+    }
+  } catch {
+    exclusiveUnlockStatus.textContent = "Could not unlock the exclusive section.";
+  }
+});
+
 if (contactForm) {
   contactForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -920,6 +1203,7 @@ if (adminLogo) {
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
     setMenuState(false);
+    closeExclusiveModal();
   }
 
   if (event.shiftKey && event.key.toLowerCase() === "c") {
@@ -935,14 +1219,19 @@ window.addEventListener("resize", () => {
 
 syncThemeButtons();
 updateFavicon();
-renderPortfolioPage();
-renderCaseStudyPage();
-renderBlogPostPage();
-document.body.classList.add("page-enter");
-refreshRevealObserver();
-initJourneyAnimation();
-initHeroParallax();
-initActiveNav();
-initSceneSections();
-initGlobalBackground();
-initScrollChrome();
+
+const initPage = async () => {
+  await renderPortfolioPage();
+  await renderCaseStudyPage();
+  renderBlogPostPage();
+  document.body.classList.add("page-enter");
+  refreshRevealObserver();
+  initJourneyAnimation();
+  initHeroParallax();
+  initActiveNav();
+  initSceneSections();
+  initGlobalBackground();
+  initScrollChrome();
+};
+
+initPage();

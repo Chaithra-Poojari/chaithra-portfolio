@@ -478,7 +478,7 @@ textarea:focus,
 
 .admin-grid-stats {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0.85rem;
   margin-bottom: 0.6rem;
 }
@@ -615,6 +615,7 @@ textarea:focus,
 
 .manager-item-project .manager-actions {
   justify-content: flex-start;
+  flex-wrap: wrap;
 }
 
 .project-editor-shell {

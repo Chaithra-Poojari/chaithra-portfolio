@@ -1,8 +1,10 @@
 const ADMIN_SESSION_KEY = "cpw-admin-session";
 const PROJECT_DRAFT_STORAGE_KEY = "cpw-project-draft";
 const ADMIN_PASSWORD_STORAGE_KEY = "cpw-admin-password";
+const EXCLUSIVE_ADMIN_PASSWORD_STORAGE_KEY = "cpw-exclusive-project-password";
 const ADMIN_EMAIL = "chaithrapoojari1234@gmail.com";
 const DEFAULT_ADMIN_PASSWORD = "1234";
+const DEFAULT_EXCLUSIVE_PASSWORD = "cv-access-2026";
 
 const loginView = document.getElementById("login-view");
 const dashboardView = document.getElementById("dashboard-view");
@@ -45,12 +47,15 @@ const saveBlogMediaButton = document.getElementById("save-blog-media-button");
 const projectMediaStatus = document.getElementById("project-media-status");
 const blogMediaStatus = document.getElementById("blog-media-status");
 const removeProfileImageButton = document.getElementById("remove-profile-image-button");
+const exclusiveProjectList = document.getElementById("exclusive-project-list");
+const newExclusiveProjectButton = document.getElementById("new-exclusive-project-button");
 
 let portfolioData = window.getPortfolioData();
 let selectedProjectId = portfolioData.projects[0]?.id || "";
 let selectedBlogId = portfolioData.blogs[0]?.id || "";
 let currentProjectDraft = null;
 let currentProjectStep = 0;
+let currentProjectMode = "public";
 let pendingProjectMedia = {};
 let pendingBlogMedia = {};
 let pendingProfileUploads = {
@@ -239,6 +244,13 @@ const loadStudioProjectDraft = () => {
 const getAdminPassword = () =>
   localStorage.getItem(ADMIN_PASSWORD_STORAGE_KEY) || DEFAULT_ADMIN_PASSWORD;
 
+const getExclusiveSettings = () => portfolioData.settings?.exclusiveAccess || {};
+
+const getExclusivePasswordInputValue = () =>
+  document.getElementById("exclusive-password-input-admin")?.value.trim() ||
+  localStorage.getItem(EXCLUSIVE_ADMIN_PASSWORD_STORAGE_KEY) ||
+  DEFAULT_EXCLUSIVE_PASSWORD;
+
 const getBrandSettings = () => ({
   displayName: portfolioData.profile.brand?.displayName || portfolioData.profile.name,
   caption: portfolioData.profile.brand?.caption || portfolioData.profile.role,
@@ -340,7 +352,9 @@ const updateSessionState = () => {
 const showSection = (sectionName) => {
   const activeNavSection =
     sectionName === "project-editor"
-      ? "projects"
+      ? currentProjectMode === "exclusive"
+        ? "exclusive-projects"
+        : "projects"
       : sectionName === "blog-editor"
         ? "blogs"
         : sectionName;
@@ -374,6 +388,7 @@ const saveAndRefresh = (message, statusElement = null) => {
     window.savePortfolioData(portfolioData);
     renderOverview();
     renderProjectsAdmin();
+    renderExclusiveProjectsAdmin();
     renderBlogsAdmin();
     renderExperienceAdmin();
     populateProfileForm();
@@ -398,7 +413,12 @@ const renderOverview = () => {
     {
       label: "Projects",
       value: portfolioData.projects.length,
-      note: "case studies in your library"
+      note: "public case studies in your library"
+    },
+    {
+      label: "Exclusive",
+      value: portfolioData.exclusiveProjects?.length || 0,
+      note: "password-protected case studies"
     },
     {
       label: "Blogs",
@@ -406,16 +426,16 @@ const renderOverview = () => {
       note: "published or drafted essays"
     },
     {
-      label: "Experience Roles",
-      value: portfolioData.experience.length,
-      note: "story points on the journey"
-    },
-    {
       label: "Featured Items",
       value:
         portfolioData.projects.filter((item) => item.featured).length +
         portfolioData.blogs.filter((item) => item.featured).length,
       note: "highlighted on the portfolio"
+    },
+    {
+      label: "Experience Roles",
+      value: portfolioData.experience.length,
+      note: "story points on the journey"
     }
   ];
 
@@ -784,12 +804,42 @@ const openProjectForEdit = (projectId) => {
     return;
   }
 
+  currentProjectMode = "public";
   selectedProjectId = project.id;
   currentProjectDraft = cloneDraft(project);
   currentProjectStep = 0;
   projectStatus.textContent = "";
   renderProjectWizard();
   showSection("project-editor");
+};
+
+const openExclusiveProjectForEdit = async (projectId) => {
+  const project = (portfolioData.exclusiveProjects || []).find((item) => item.id === projectId);
+  if (!project) {
+    return;
+  }
+
+  const password = getExclusivePasswordInputValue();
+  if (!password) {
+    setStatus(projectStatus, "Enter the exclusive-project password in Profile before editing.");
+    showSection("profile");
+    return;
+  }
+
+  try {
+    currentProjectMode = "exclusive";
+    currentProjectDraft = cloneDraft(
+      await window.decryptExclusiveProject(project.encryptedPayload, password)
+    );
+    selectedProjectId = project.id;
+    currentProjectStep = 0;
+    projectStatus.textContent = "";
+    renderProjectWizard();
+    showSection("project-editor");
+  } catch {
+    setStatus(projectStatus, "Exclusive password did not match the stored project data.");
+    showSection("profile");
+  }
 };
 
 const renderProjectsAdmin = () => {
@@ -811,6 +861,9 @@ const renderProjectsAdmin = () => {
             <button class="admin-button" type="button" data-edit-project="${project.id}">
               Edit
             </button>
+            <button class="admin-button" type="button" data-move-project-exclusive="${project.id}">
+              Move to secret
+            </button>
           </div>
         </article>
       `
@@ -820,6 +873,56 @@ const renderProjectsAdmin = () => {
   projectList.querySelectorAll("[data-edit-project]").forEach((button) => {
     button.addEventListener("click", () => {
       openProjectForEdit(button.dataset.editProject);
+    });
+  });
+
+  projectList.querySelectorAll("[data-move-project-exclusive]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      await movePublicProjectToExclusive(button.dataset.moveProjectExclusive);
+    });
+  });
+};
+
+const renderExclusiveProjectsAdmin = () => {
+  if (!exclusiveProjectList) {
+    return;
+  }
+
+  exclusiveProjectList.innerHTML = (portfolioData.exclusiveProjects || [])
+    .map(
+      (project) => `
+        <article class="manager-item manager-item-project">
+          <div>
+            <h3>${project.title}</h3>
+            <p class="manager-meta">${project.summary}</p>
+            <div class="tag-row-admin">
+              <span>${project.category}</span>
+              <span>${getTemplateMeta(project.template).label}</span>
+              <span class="pill">Exclusive</span>
+            </div>
+          </div>
+          <div class="manager-actions">
+            <button class="admin-button" type="button" data-edit-exclusive-project="${project.id}">
+              Edit
+            </button>
+            <button class="admin-button" type="button" data-move-project-public="${project.id}">
+              Move to public
+            </button>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+
+  exclusiveProjectList.querySelectorAll("[data-edit-exclusive-project]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      await openExclusiveProjectForEdit(button.dataset.editExclusiveProject);
+    });
+  });
+
+  exclusiveProjectList.querySelectorAll("[data-move-project-public]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      await moveExclusiveProjectToPublic(button.dataset.moveProjectPublic);
     });
   });
 };
@@ -1068,6 +1171,9 @@ const populateProfileForm = () => {
   document.getElementById("brand-accent-dot").value = brand.accentDot;
   document.getElementById("admin-login-email-display").value = ADMIN_EMAIL;
   document.getElementById("admin-password-input").value = getAdminPassword();
+  document.getElementById("exclusive-password-input-admin").value = "";
+  document.getElementById("exclusive-password-hint").value =
+    getExclusiveSettings().hint || "Enter password from my CV.";
   updateImagePreview("banner-preview", pendingProfileUploads.bannerImage || profile.heroImage, "No banner");
   renderStudioBrand();
   renderDashboardMediaAdmin();
@@ -1121,15 +1227,14 @@ const savePendingBlogMedia = () => {
   }
 };
 
-const publishCurrentProject = () => {
+const buildProjectFromDraft = () => {
   if (!currentProjectDraft) {
-    return;
+    return null;
   }
 
   const title = currentProjectDraft.title.trim();
   if (!title) {
-    setStatus(projectStatus, "Add a project title before publishing.");
-    return;
+    return null;
   }
 
   const coverImage =
@@ -1137,7 +1242,7 @@ const publishCurrentProject = () => {
     currentProjectDraft.caseStudy.overview.coverImage ||
     "/assets/project-atlas.svg";
 
-  const project = {
+  return {
     ...currentProjectDraft,
     id: currentProjectDraft.id || slugify(title),
     title,
@@ -1151,8 +1256,7 @@ const publishCurrentProject = () => {
         coverImage,
         summary:
           currentProjectDraft.caseStudy.overview.summary || currentProjectDraft.description,
-        role:
-          currentProjectDraft.caseStudy.overview.role || currentProjectDraft.role,
+        role: currentProjectDraft.caseStudy.overview.role || currentProjectDraft.role,
         duration:
           currentProjectDraft.caseStudy.overview.duration || currentProjectDraft.timeline
       }
@@ -1161,6 +1265,101 @@ const publishCurrentProject = () => {
     approach: `<p>${currentProjectDraft.caseStudy.designPrinciples.join("</p><p>")}</p>`,
     impact: currentProjectDraft.caseStudy.outcome || currentProjectDraft.impact || ""
   };
+};
+
+// Project transfer logic:
+// Public -> Exclusive encrypts the full project payload and keeps only preview metadata public.
+// Exclusive -> Public decrypts the stored payload and moves it back into the normal project list.
+const movePublicProjectToExclusive = async (projectId) => {
+  const project = portfolioData.projects.find((item) => item.id === projectId);
+  if (!project) {
+    return;
+  }
+
+  const password = getExclusivePasswordInputValue();
+  if (!password) {
+    setStatus(projectMediaStatus, "Set the exclusive-project password in Profile before moving a project.");
+    showSection("profile");
+    return;
+  }
+
+  try {
+    const encryptedPayload = await window.encryptExclusiveProject(project, password);
+    const preview = window.createExclusivePreview(project, encryptedPayload);
+    portfolioData.projects = portfolioData.projects.filter((item) => item.id !== projectId);
+    portfolioData.exclusiveProjects = [
+      preview,
+      ...(portfolioData.exclusiveProjects || []).filter((item) => item.id !== projectId)
+    ];
+    saveAndRefresh("Project moved to exclusive library.", projectMediaStatus);
+  } catch {
+    setStatus(projectMediaStatus, "Could not move the project. Please try again.");
+  }
+};
+
+const moveExclusiveProjectToPublic = async (projectId) => {
+  const preview = (portfolioData.exclusiveProjects || []).find((item) => item.id === projectId);
+  if (!preview) {
+    return;
+  }
+
+  const password = getExclusivePasswordInputValue();
+  if (!password) {
+    setStatus(projectStatus, "Enter the exclusive-project password in Profile before making a project public.");
+    showSection("profile");
+    return;
+  }
+
+  try {
+    const project = await window.decryptExclusiveProject(preview.encryptedPayload, password);
+    portfolioData.exclusiveProjects = (portfolioData.exclusiveProjects || []).filter(
+      (item) => item.id !== projectId
+    );
+    portfolioData.projects = [project, ...portfolioData.projects.filter((item) => item.id !== projectId)];
+    saveAndRefresh("Exclusive project moved to public projects.", projectStatus);
+  } catch {
+    setStatus(projectStatus, "Could not unlock that project with the current exclusive password.");
+  }
+};
+
+const publishCurrentProject = async () => {
+  const project = buildProjectFromDraft();
+  if (!project) {
+    setStatus(projectStatus, "Add a project title before saving.");
+    return;
+  }
+
+  if (currentProjectMode === "exclusive") {
+    const password = getExclusivePasswordInputValue();
+    if (!password) {
+      setStatus(projectStatus, "Set the exclusive-project password in Profile before saving this project.");
+      showSection("profile");
+      return;
+    }
+
+    try {
+      const encryptedPayload = await window.encryptExclusiveProject(project, password);
+      const preview = window.createExclusivePreview(project, encryptedPayload);
+      const existingIndex = (portfolioData.exclusiveProjects || []).findIndex(
+        (item) => item.id === project.id
+      );
+
+      if (existingIndex >= 0) {
+        portfolioData.exclusiveProjects[existingIndex] = preview;
+      } else {
+        portfolioData.exclusiveProjects = [preview, ...(portfolioData.exclusiveProjects || [])];
+      }
+
+      portfolioData.projects = portfolioData.projects.filter((item) => item.id !== project.id);
+      selectedProjectId = project.id;
+      currentProjectDraft = cloneDraft(project);
+      saveAndRefresh("Exclusive project saved.", projectStatus);
+      saveStudioProjectDraft();
+    } catch {
+      setStatus(projectStatus, "Could not encrypt the exclusive project. Please try again.");
+    }
+    return;
+  }
 
   const existingIndex = portfolioData.projects.findIndex((item) => item.id === project.id);
   if (existingIndex >= 0) {
@@ -1221,6 +1420,17 @@ navButtons.forEach((button) => {
 });
 
 document.getElementById("new-project-button").addEventListener("click", () => {
+  currentProjectMode = "public";
+  currentProjectDraft = null;
+  currentProjectStep = 0;
+  selectedProjectId = "";
+  projectStatus.textContent = "";
+  renderProjectWizard();
+  showSection("project-editor");
+});
+
+newExclusiveProjectButton?.addEventListener("click", () => {
+  currentProjectMode = "exclusive";
   currentProjectDraft = null;
   currentProjectStep = 0;
   selectedProjectId = "";
@@ -1238,7 +1448,7 @@ projectResetButton.addEventListener("click", () => {
 });
 
 projectBackButton.addEventListener("click", () => {
-  showSection("projects");
+  showSection(currentProjectMode === "exclusive" ? "exclusive-projects" : "projects");
 });
 
 wizardPrevButton.addEventListener("click", () => {
@@ -1262,7 +1472,9 @@ wizardSaveDraftButton.addEventListener("click", () => {
   setStatus(projectStatus, "Draft saved locally.");
 });
 
-projectSaveButton.addEventListener("click", publishCurrentProject);
+projectSaveButton.addEventListener("click", async () => {
+  await publishCurrentProject();
+});
 
 deleteProjectButton.addEventListener("click", () => {
   if (!currentProjectDraft?.id) {
@@ -1271,7 +1483,13 @@ deleteProjectButton.addEventListener("click", () => {
     return;
   }
 
-  portfolioData.projects = portfolioData.projects.filter((item) => item.id !== currentProjectDraft.id);
+  if (currentProjectMode === "exclusive") {
+    portfolioData.exclusiveProjects = (portfolioData.exclusiveProjects || []).filter(
+      (item) => item.id !== currentProjectDraft.id
+    );
+  } else {
+    portfolioData.projects = portfolioData.projects.filter((item) => item.id !== currentProjectDraft.id);
+  }
   selectedProjectId = portfolioData.projects[0]?.id || "";
   currentProjectDraft = null;
   localStorage.removeItem(PROJECT_DRAFT_STORAGE_KEY);
@@ -1443,6 +1661,43 @@ document.getElementById("new-experience-button").addEventListener("click", () =>
 
 document.getElementById("profile-form").addEventListener("submit", async (event) => {
   event.preventDefault();
+  const exclusivePasswordValue = document.getElementById("exclusive-password-input-admin").value.trim();
+  const exclusiveSettings = getExclusiveSettings();
+  const currentExclusivePassword =
+    localStorage.getItem(EXCLUSIVE_ADMIN_PASSWORD_STORAGE_KEY) || DEFAULT_EXCLUSIVE_PASSWORD;
+  let exclusivePasswordHash = exclusiveSettings.passwordHash;
+  let exclusivePasswordSalt = exclusiveSettings.passwordSalt;
+
+  if (exclusivePasswordValue && (portfolioData.exclusiveProjects || []).length) {
+    try {
+      portfolioData.exclusiveProjects = await Promise.all(
+        portfolioData.exclusiveProjects.map(async (project) => {
+          const decrypted = await window.decryptExclusiveProject(
+            project.encryptedPayload,
+            currentExclusivePassword
+          );
+          const encryptedPayload = await window.encryptExclusiveProject(
+            decrypted,
+            exclusivePasswordValue
+          );
+          return window.createExclusivePreview(decrypted, encryptedPayload);
+        })
+      );
+    } catch {
+      setStatus(
+        document.getElementById("profile-status"),
+        "Could not update the exclusive password because existing projects could not be re-encrypted."
+      );
+      return;
+    }
+  }
+
+  if (exclusivePasswordValue) {
+    const hashed = await window.hashExclusivePassword(exclusivePasswordValue);
+    exclusivePasswordHash = hashed.hash;
+    exclusivePasswordSalt = hashed.salt;
+  }
+
   portfolioData.profile = {
     ...portfolioData.profile,
     name: document.getElementById("profile-name").value.trim(),
@@ -1481,6 +1736,16 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
       { group: "Systems Thinking", items: parseTags(document.getElementById("skills-systems").value) }
     ]
   };
+  portfolioData.settings = {
+    ...portfolioData.settings,
+    exclusiveAccess: {
+      passwordHash: exclusivePasswordHash,
+      passwordSalt: exclusivePasswordSalt,
+      hint:
+        document.getElementById("exclusive-password-hint").value.trim() ||
+        "Enter password from my CV."
+    }
+  };
 
   const didSave = saveAndRefresh("Profile updated.", document.getElementById("profile-status"));
   if (didSave) {
@@ -1495,6 +1760,9 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
     const nextPassword = document.getElementById("admin-password-input").value.trim();
     if (nextPassword) {
       localStorage.setItem(ADMIN_PASSWORD_STORAGE_KEY, nextPassword);
+    }
+    if (exclusivePasswordValue) {
+      localStorage.setItem(EXCLUSIVE_ADMIN_PASSWORD_STORAGE_KEY, exclusivePasswordValue);
     }
   }
 });
@@ -1512,6 +1780,7 @@ document.getElementById("reset-data-button").addEventListener("click", () => {
 renderTemplateSelection();
 renderOverview();
 renderProjectsAdmin();
+renderExclusiveProjectsAdmin();
 renderBlogsAdmin();
 renderExperienceAdmin();
 populateProfileForm();

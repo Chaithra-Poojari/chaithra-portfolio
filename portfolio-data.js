@@ -1,4 +1,6 @@
 const PORTFOLIO_STORAGE_KEY = "cpw-portfolio-data";
+const DEFAULT_EXCLUSIVE_PASSWORD_HASH = "J/LrPc0Var9IGa6v1KBt4k/5gXadbS2l8dBX29aGmws=";
+const DEFAULT_EXCLUSIVE_PASSWORD_SALT = "Y9YKj4o+xBIVSVZsnYc4bQ==";
 
 const PROJECT_TEMPLATES = [
   {
@@ -103,6 +105,13 @@ const defaultPortfolioData = {
       { label: "Dribbble", url: "https://dribbble.com" },
       { label: "GitHub", url: "https://github.com" }
     ]
+  },
+  settings: {
+    exclusiveAccess: {
+      passwordHash: DEFAULT_EXCLUSIVE_PASSWORD_HASH,
+      passwordSalt: DEFAULT_EXCLUSIVE_PASSWORD_SALT,
+      hint: "Enter password from my CV."
+    }
   },
   projects: [
     {
@@ -313,6 +322,50 @@ const defaultPortfolioData = {
       }
     }
   ],
+  exclusiveProjects: [
+    {
+      id: "confidential-finops",
+      title: "Confidential FinOps Platform",
+      category: "Enterprise",
+      summary:
+        "Designed a financial operations workspace for high-volume internal teams handling approvals, exceptions, and reporting.",
+      description:
+        "Designed a financial operations workspace for high-volume internal teams handling approvals, exceptions, and reporting.",
+      thumbnail: "/assets/project-orbit.svg",
+      coverImage: "/assets/project-orbit.svg",
+      tags: ["Enterprise", "Dashboard", "Systems"],
+      template: "business-dashboard",
+      featured: false,
+      encryptedPayload: {
+        version: 1,
+        salt: "w5WNMICYAZ0GX8qMMoAs8w==",
+        iv: "0d5ZVTEDnaDdkSlO",
+        cipherText:
+          "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"
+      }
+    },
+    {
+      id: "confidential-mobile-care",
+      title: "Confidential Mobile Care App",
+      category: "Mobile App",
+      summary:
+        "Created a private mobile health companion focused on check-ins, task clarity, and continuity between appointments.",
+      description:
+        "Created a private mobile health companion focused on check-ins, task clarity, and continuity between appointments.",
+      thumbnail: "/assets/project-atlas.svg",
+      coverImage: "/assets/project-atlas.svg",
+      tags: ["Mobile", "Healthcare", "UX"],
+      template: "mobile-app",
+      featured: false,
+      encryptedPayload: {
+        version: 1,
+        salt: "TYVlr7UlovBp9nnm23kc2A==",
+        iv: "711uIfOtLMgpYbZH",
+        cipherText:
+          "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"
+      }
+    }
+  ],
   blogs: [
     {
       id: "ai-boundaries",
@@ -394,6 +447,7 @@ const defaultPortfolioData = {
 };
 
 const deepClone = (value) => JSON.parse(JSON.stringify(value));
+const defaultExclusiveProjects = deepClone(defaultPortfolioData.exclusiveProjects || []);
 
 const normalizeAssetPath = (image, fallback = "./assets/profile-portrait.svg") => {
   if (!image) {
@@ -408,6 +462,166 @@ const normalizeAssetPath = (image, fallback = "./assets/profile-portrait.svg") =
 };
 
 const ensureArray = (value) => (Array.isArray(value) ? value : []);
+
+const ensureExclusiveProjectStructure = (project) => ({
+  id: project.id || `exclusive-${Date.now()}`,
+  title: project.title || "Exclusive Project",
+  category: project.category || "Confidential",
+  summary: project.summary || project.description || "Confidential case study preview.",
+  description: project.description || project.summary || "Confidential case study preview.",
+  thumbnail: normalizeAssetPath(
+    project.thumbnail || project.coverImage || "/assets/project-atlas.svg",
+    "/assets/project-atlas.svg"
+  ),
+  coverImage: normalizeAssetPath(
+    project.coverImage || project.thumbnail || "/assets/project-atlas.svg",
+    "/assets/project-atlas.svg"
+  ),
+  tags: ensureArray(project.tags),
+  template: project.template || "ai-saas",
+  featured: Boolean(project.featured),
+  encryptedPayload: project.encryptedPayload || null
+});
+
+const encoder = typeof TextEncoder !== "undefined" ? new TextEncoder() : null;
+const decoder = typeof TextDecoder !== "undefined" ? new TextDecoder() : null;
+
+const bytesToBase64 = (bytes) => {
+  if (typeof btoa !== "function") {
+    return "";
+  }
+
+  let binary = "";
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary);
+};
+
+const base64ToBytes = (value) => {
+  if (typeof atob !== "function") {
+    return new Uint8Array();
+  }
+
+  const binary = atob(value);
+  return Uint8Array.from(binary, (char) => char.charCodeAt(0));
+};
+
+const getRandomBytes = (length) => {
+  const bytes = new Uint8Array(length);
+  window.crypto.getRandomValues(bytes);
+  return bytes;
+};
+
+const deriveAesKey = async (secret, saltBase64) => {
+  const keyMaterial = await window.crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    "PBKDF2",
+    false,
+    ["deriveKey"]
+  );
+
+  return window.crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt: base64ToBytes(saltBase64),
+      iterations: 120000,
+      hash: "SHA-256"
+    },
+    keyMaterial,
+    {
+      name: "AES-GCM",
+      length: 256
+    },
+    false,
+    ["encrypt", "decrypt"]
+  );
+};
+
+window.hashExclusivePassword = async (password, saltBase64 = "") => {
+  const salt = saltBase64 || bytesToBase64(getRandomBytes(16));
+  const keyMaterial = await window.crypto.subtle.importKey(
+    "raw",
+    encoder.encode(password),
+    "PBKDF2",
+    false,
+    ["deriveBits"]
+  );
+  const bits = await window.crypto.subtle.deriveBits(
+    {
+      name: "PBKDF2",
+      salt: base64ToBytes(salt),
+      iterations: 120000,
+      hash: "SHA-256"
+    },
+    keyMaterial,
+    256
+  );
+
+  return {
+    salt,
+    hash: bytesToBase64(new Uint8Array(bits))
+  };
+};
+
+window.verifyExclusivePassword = async (password, settings = {}) => {
+  if (!password || !settings.passwordHash || !settings.passwordSalt) {
+    return false;
+  }
+
+  const result = await window.hashExclusivePassword(password, settings.passwordSalt);
+  return result.hash === settings.passwordHash;
+};
+
+window.encryptExclusiveProject = async (project, password) => {
+  const salt = bytesToBase64(getRandomBytes(16));
+  const iv = bytesToBase64(getRandomBytes(12));
+  const key = await deriveAesKey(password, salt);
+  const encrypted = await window.crypto.subtle.encrypt(
+    {
+      name: "AES-GCM",
+      iv: base64ToBytes(iv)
+    },
+    key,
+    encoder.encode(JSON.stringify(project))
+  );
+
+  return {
+    version: 1,
+    salt,
+    iv,
+    cipherText: bytesToBase64(new Uint8Array(encrypted))
+  };
+};
+
+window.decryptExclusiveProject = async (encryptedPayload, password) => {
+  const key = await deriveAesKey(password, encryptedPayload.salt);
+  const decrypted = await window.crypto.subtle.decrypt(
+    {
+      name: "AES-GCM",
+      iv: base64ToBytes(encryptedPayload.iv)
+    },
+    key,
+    base64ToBytes(encryptedPayload.cipherText)
+  );
+
+  return ensureProjectStructure(JSON.parse(decoder.decode(decrypted)));
+};
+
+window.createExclusivePreview = (project, encryptedPayload) => ({
+  id: project.id,
+  title: project.title,
+  category: project.category,
+  summary: project.description || project.caseStudy?.overview?.summary || "Confidential case study preview.",
+  description: project.description || project.caseStudy?.overview?.summary || "Confidential case study preview.",
+  thumbnail: normalizeAssetPath(project.thumbnail || project.coverImage || "/assets/project-atlas.svg", "/assets/project-atlas.svg"),
+  coverImage: normalizeAssetPath(project.coverImage || project.thumbnail || "/assets/project-atlas.svg", "/assets/project-atlas.svg"),
+  tags: ensureArray(project.tags),
+  template: project.template || "ai-saas",
+  featured: Boolean(project.featured),
+  encryptedPayload
+});
 
 const ensureProjectStructure = (project) => {
   const template = project.template || "ai-saas";
@@ -495,7 +709,18 @@ window.getPortfolioData = () => {
       accentEnd: base.profile.brand?.accentEnd || "#5A8BFF",
       accentDot: base.profile.brand?.accentDot || "#7b72ed"
     };
+    base.settings = {
+      exclusiveAccess: {
+        passwordHash: base.settings?.exclusiveAccess?.passwordHash || DEFAULT_EXCLUSIVE_PASSWORD_HASH,
+        passwordSalt: base.settings?.exclusiveAccess?.passwordSalt || DEFAULT_EXCLUSIVE_PASSWORD_SALT,
+        hint: base.settings?.exclusiveAccess?.hint || "Enter password from my CV."
+      }
+    };
     base.projects = ensureArray(base.projects).map(ensureProjectStructure);
+    base.exclusiveProjects = ensureArray(base.exclusiveProjects).map(ensureExclusiveProjectStructure);
+    if (!base.exclusiveProjects.length && defaultExclusiveProjects.length) {
+      base.exclusiveProjects = defaultExclusiveProjects.map(ensureExclusiveProjectStructure);
+    }
     base.blogs = ensureArray(base.blogs).map(ensureBlogStructure);
     base.experience = ensureArray(base.experience);
     return base;
@@ -512,7 +737,18 @@ window.getPortfolioData = () => {
       accentEnd: fallback.profile.brand?.accentEnd || "#5A8BFF",
       accentDot: fallback.profile.brand?.accentDot || "#7b72ed"
     };
+    fallback.settings = {
+      exclusiveAccess: {
+        passwordHash: fallback.settings?.exclusiveAccess?.passwordHash || DEFAULT_EXCLUSIVE_PASSWORD_HASH,
+        passwordSalt: fallback.settings?.exclusiveAccess?.passwordSalt || DEFAULT_EXCLUSIVE_PASSWORD_SALT,
+        hint: fallback.settings?.exclusiveAccess?.hint || "Enter password from my CV."
+      }
+    };
     fallback.projects = fallback.projects.map(ensureProjectStructure);
+    fallback.exclusiveProjects = ensureArray(fallback.exclusiveProjects).map(ensureExclusiveProjectStructure);
+    if (!fallback.exclusiveProjects.length && defaultExclusiveProjects.length) {
+      fallback.exclusiveProjects = defaultExclusiveProjects.map(ensureExclusiveProjectStructure);
+    }
     fallback.blogs = fallback.blogs.map(ensureBlogStructure);
     return fallback;
   }
@@ -527,6 +763,7 @@ window.resetPortfolioData = () => {
   const resetValue = deepClone(defaultPortfolioData);
   resetValue.profile.heroImage = normalizeAssetPath(resetValue.profile.heroImage || "", "");
   resetValue.projects = resetValue.projects.map(ensureProjectStructure);
+  resetValue.exclusiveProjects = ensureArray(resetValue.exclusiveProjects).map(ensureExclusiveProjectStructure);
   resetValue.blogs = resetValue.blogs.map(ensureBlogStructure);
   return resetValue;
 };

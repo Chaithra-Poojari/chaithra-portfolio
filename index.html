@@ -258,6 +258,23 @@
               <h2>Selected work across health, AI, and product infrastructure.</h2>
             </div>
             <div class="projects-grid" id="projects-grid"></div>
+            <div class="exclusive-separator reveal" id="exclusive-separator" hidden>
+              <span></span>
+              <p>Exclusive Projects</p>
+              <span></span>
+            </div>
+            <div class="exclusive-projects-shell" id="exclusive-projects-shell" hidden>
+              <div class="exclusive-projects-head reveal">
+                <div>
+                  <p class="eyebrow">Private Selection</p>
+                  <h3>Additional sensitive case studies shared selectively with hiring teams.</h3>
+                </div>
+                <button class="button button-secondary exclusive-section-button" type="button" id="exclusive-section-trigger">
+                  Enter password from my CV.
+                </button>
+              </div>
+              <div class="projects-grid exclusive-projects-grid" id="exclusive-projects-grid"></div>
+            </div>
           </div>
         </section>
 
@@ -326,6 +343,44 @@
           </p>
         </div>
       </footer>
+    </div>
+
+    <div class="exclusive-modal" id="exclusive-modal" hidden>
+      <div class="exclusive-modal-backdrop" data-exclusive-close></div>
+      <div
+        class="exclusive-modal-card glass-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="exclusive-modal-title"
+      >
+        <button
+          class="exclusive-modal-close"
+          type="button"
+          data-exclusive-close
+          aria-label="Close unlock dialog"
+        >
+          Close
+        </button>
+        <p class="eyebrow">Exclusive Projects</p>
+        <h2 id="exclusive-modal-title">Unlock confidential case studies</h2>
+        <p class="exclusive-modal-note" id="exclusive-modal-hint">Enter password from my CV.</p>
+        <form id="exclusive-unlock-form" class="exclusive-unlock-form">
+          <label>
+            Password
+            <input
+              type="password"
+              id="exclusive-password-input"
+              placeholder="Enter password"
+              autocomplete="current-password"
+              required
+            />
+          </label>
+          <div class="exclusive-modal-actions">
+            <button class="button button-primary" type="submit">Unlock Projects</button>
+          </div>
+          <p class="form-status" id="exclusive-unlock-status" aria-live="polite"></p>
+        </form>
+      </div>
     </div>
 
     <script src="./portfolio-data.js"></script>

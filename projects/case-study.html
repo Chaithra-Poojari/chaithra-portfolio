@@ -153,6 +153,44 @@
       </section>
     </main>
 
+    <div class="exclusive-modal" id="exclusive-modal" hidden>
+      <div class="exclusive-modal-backdrop" data-exclusive-close></div>
+      <div
+        class="exclusive-modal-card glass-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="exclusive-modal-title"
+      >
+        <button
+          class="exclusive-modal-close"
+          type="button"
+          data-exclusive-close
+          aria-label="Close unlock dialog"
+        >
+          Close
+        </button>
+        <p class="eyebrow">Exclusive Projects</p>
+        <h2 id="exclusive-modal-title">Unlock confidential case studies</h2>
+        <p class="exclusive-modal-note" id="exclusive-modal-hint">Enter password from my CV.</p>
+        <form id="exclusive-unlock-form" class="exclusive-unlock-form">
+          <label>
+            Password
+            <input
+              type="password"
+              id="exclusive-password-input"
+              placeholder="Enter password"
+              autocomplete="current-password"
+              required
+            />
+          </label>
+          <div class="exclusive-modal-actions">
+            <button class="button button-primary" type="submit">Unlock Projects</button>
+          </div>
+          <p class="form-status" id="exclusive-unlock-status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+
     <script src="../portfolio-data.js"></script>
     <script src="../script.js"></script>
   </body>
