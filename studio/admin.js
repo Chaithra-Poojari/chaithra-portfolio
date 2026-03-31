@@ -48,6 +48,7 @@ const projectMediaStatus = document.getElementById("project-media-status");
 const blogMediaStatus = document.getElementById("blog-media-status");
 const removeProfileImageButton = document.getElementById("remove-profile-image-button");
 const exclusiveProjectList = document.getElementById("exclusive-project-list");
+const cvDownloadList = document.getElementById("cv-download-list");
 const newExclusiveProjectButton = document.getElementById("new-exclusive-project-button");
 const exportPortfolioDataButton = document.getElementById("export-portfolio-data-button");
 const importPortfolioDataButton = document.getElementById("import-portfolio-data-button");
@@ -66,9 +67,13 @@ let pendingProfileUploads = {
   profileImage: "",
   bannerImage: "",
   brandIcon: "",
-  favicon: ""
+  favicon: "",
+  cvFile: "",
+  cvFileName: "",
+  cvAssetKey: ""
 };
 let removeProfileImageOnSave = false;
+let removeCvOnSave = false;
 
 const projectTemplates = window.getProjectTemplates();
 const caseStudyStepLabels = window.getCaseStudyStepLabels();
@@ -420,6 +425,7 @@ const saveAndRefresh = (message, statusElement = null) => {
     renderProjectsAdmin();
     renderExclusiveProjectsAdmin();
     renderBlogsAdmin();
+    renderCvDownloadsAdmin();
     renderExperienceAdmin();
     populateProfileForm();
     if (statusElement) {
@@ -471,7 +477,10 @@ const importPortfolioBackup = async (file) => {
       profileImage: "",
       bannerImage: "",
       brandIcon: "",
-      favicon: ""
+      favicon: "",
+      cvFile: "",
+      cvFileName: "",
+      cvAssetKey: ""
     };
     removeProfileImageOnSave = false;
     renderStudioBrand();
@@ -505,11 +514,9 @@ const renderOverview = () => {
       note: "published or drafted essays"
     },
     {
-      label: "Featured Items",
-      value:
-        portfolioData.projects.filter((item) => item.featured).length +
-        portfolioData.blogs.filter((item) => item.featured).length,
-      note: "highlighted on the portfolio"
+      label: "CV Requests",
+      value: portfolioData.cvDownloads?.length || 0,
+      note: "resume access submissions"
     },
     {
       label: "Experience Roles",
@@ -557,6 +564,45 @@ const renderOverview = () => {
           <div class="feature-item-copy">
             <h3>${item.title}</h3>
             <p class="admin-muted">${item.detail}</p>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+};
+
+const renderCvDownloadsAdmin = () => {
+  if (!cvDownloadList) {
+    return;
+  }
+
+  const entries = [...(portfolioData.cvDownloads || [])].sort(
+    (a, b) => new Date(b.requestedAt || 0).getTime() - new Date(a.requestedAt || 0).getTime()
+  );
+
+  if (!entries.length) {
+    cvDownloadList.innerHTML = `
+      <article class="feature-item">
+        <div class="feature-item-copy">
+          <h3>No CV requests yet</h3>
+          <p class="admin-muted">Once someone downloads your CV, their details will appear here.</p>
+        </div>
+      </article>
+    `;
+    return;
+  }
+
+  cvDownloadList.innerHTML = entries
+    .map(
+      (entry, index) => `
+        <article class="feature-item">
+          <div class="feature-item-topline">
+            <p class="admin-kicker">${entry.companyName || "Company"}</p>
+            <span class="feature-item-index">${String(index + 1).padStart(2, "0")}</span>
+          </div>
+          <div class="feature-item-copy">
+            <h3>${entry.email || "Unknown email"}</h3>
+            <p class="admin-muted">${new Date(entry.requestedAt || Date.now()).toLocaleString()}</p>
           </div>
         </article>
       `
@@ -1235,6 +1281,7 @@ const renderDashboardMediaAdmin = () => {
 const populateProfileForm = () => {
   const profile = portfolioData.profile;
   const brand = getBrandSettings();
+  const cvMeta = document.getElementById("cv-file-meta");
   document.getElementById("profile-name").value = profile.name;
   document.getElementById("profile-first-name").value = profile.firstName;
   document.getElementById("profile-role").value = profile.role;
@@ -1259,6 +1306,18 @@ const populateProfileForm = () => {
   document.getElementById("brand-accent-start").value = brand.accentStart;
   document.getElementById("brand-accent-end").value = brand.accentEnd;
   document.getElementById("brand-accent-dot").value = brand.accentDot;
+  document.getElementById("profile-cv-file").value = "";
+  if (cvMeta) {
+    const pendingName = pendingProfileUploads.cvFileName;
+    const savedName = profile.cvFileName;
+    cvMeta.textContent = removeCvOnSave
+      ? "CV will be removed after saving."
+      : pendingName
+        ? `Selected CV: ${pendingName}`
+        : savedName
+          ? `Current CV: ${savedName}`
+          : "No CV uploaded.";
+  }
   document.getElementById("admin-login-email-display").value = ADMIN_EMAIL;
   document.getElementById("admin-password-input").value = getAdminPassword();
   document.getElementById("exclusive-password-input-admin").value =
@@ -1693,6 +1752,49 @@ document.getElementById("favicon-image")?.addEventListener("change", async (even
   setStatus(document.getElementById("favicon-status"), "Favicon selected. Click save favicon to apply.");
 });
 
+document.getElementById("profile-cv-file")?.addEventListener("change", async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) {
+    return;
+  }
+
+  const isPdf =
+    file.type === "application/pdf" || String(file.name || "").toLowerCase().endsWith(".pdf");
+  if (!isPdf) {
+    event.target.value = "";
+    setStatus(document.getElementById("cv-status"), "Please upload a PDF file for the CV.");
+    return;
+  }
+
+  const uploadedCv = await readFileAsDataUrl(file);
+  const pdfLikeData =
+    /^data:application\/pdf;base64,/i.test(String(uploadedCv)) ||
+    /^data:application\/x-pdf;base64,/i.test(String(uploadedCv)) ||
+    /^data:application\/octet-stream;base64,/i.test(String(uploadedCv));
+  if (!uploadedCv || !pdfLikeData) {
+    event.target.value = "";
+    setStatus(document.getElementById("cv-status"), "The uploaded CV must stay in PDF format.");
+    return;
+  }
+
+  pendingProfileUploads.cvFile = uploadedCv;
+  pendingProfileUploads.cvFileName = file.name || "Chaithra-Poojary CV.pdf";
+  pendingProfileUploads.cvAssetKey = "";
+  removeCvOnSave = false;
+  setStatus(document.getElementById("cv-status"), "CV selected. Click save CV to apply.");
+  populateProfileForm();
+});
+
+document.getElementById("remove-cv-file-button")?.addEventListener("click", () => {
+  pendingProfileUploads.cvFile = "";
+  pendingProfileUploads.cvFileName = "";
+  pendingProfileUploads.cvAssetKey = "";
+  removeCvOnSave = true;
+  document.getElementById("profile-cv-file").value = "";
+  setStatus(document.getElementById("cv-status"), "CV will be removed when you save CV.");
+  populateProfileForm();
+});
+
 blogForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const existingId = document.getElementById("blog-id").value;
@@ -1887,6 +1989,54 @@ const saveProfileSection = async (submitter) => {
     };
   }
 
+  if (saveSection === "cv") {
+    let nextCvAssetKey = portfolioData.profile.cvAssetKey || "";
+    let nextCvFileName = portfolioData.profile.cvFileName || "";
+    let nextCvFileData = portfolioData.profile.cvFile || "";
+
+    // Store PDFs in IndexedDB so the portfolio data stays small and the public
+    // site and admin both read the same stable asset reference.
+    if (removeCvOnSave) {
+      if (nextCvAssetKey) {
+        try {
+          await window.removeCvAsset(nextCvAssetKey);
+        } catch {
+          // Ignore asset cleanup failures so the visible remove flow still works.
+        }
+      }
+      nextCvAssetKey = "";
+      nextCvFileName = "";
+      nextCvFileData = "";
+    } else if (pendingProfileUploads.cvFile) {
+      if (nextCvAssetKey) {
+        try {
+          await window.removeCvAsset(nextCvAssetKey);
+        } catch {
+          // Ignore replacing failures; the new asset will still be saved.
+        }
+      }
+      try {
+        nextCvAssetKey = await window.saveCvAsset(
+          pendingProfileUploads.cvFile,
+          pendingProfileUploads.cvFileName || "Chaithra-Poojary CV.pdf"
+        );
+      } catch {
+        nextCvAssetKey = "";
+      }
+      nextCvFileName = pendingProfileUploads.cvFileName || "Chaithra-Poojary CV.pdf";
+      // Keep a compatible inline copy as a fallback so the public site can still
+      // show and download the CV even if IndexedDB is unavailable in the viewer.
+      nextCvFileData = pendingProfileUploads.cvFile;
+    }
+
+    portfolioData.profile = {
+      ...portfolioData.profile,
+      cvFile: nextCvFileData,
+      cvFileName: nextCvFileName,
+      cvAssetKey: nextCvAssetKey
+    };
+  }
+
   if (saveSection === "studio-access") {
     portfolioData.settings = {
       ...portfolioData.settings,
@@ -1914,6 +2064,12 @@ const saveProfileSection = async (submitter) => {
     }
     if (saveSection === "favicon") {
       pendingProfileUploads.favicon = "";
+    }
+    if (saveSection === "cv") {
+      pendingProfileUploads.cvFile = "";
+      pendingProfileUploads.cvFileName = "";
+      pendingProfileUploads.cvAssetKey = "";
+      removeCvOnSave = false;
     }
     renderStudioBrand();
     const nextPassword = document.getElementById("admin-password-input").value.trim();
@@ -1947,9 +2103,13 @@ document.getElementById("reset-data-button").addEventListener("click", () => {
     profileImage: "",
     bannerImage: "",
     brandIcon: "",
-    favicon: ""
+    favicon: "",
+    cvFile: "",
+    cvFileName: "",
+    cvAssetKey: ""
   };
   removeProfileImageOnSave = false;
+  removeCvOnSave = false;
   localStorage.removeItem(PROJECT_DRAFT_STORAGE_KEY);
   saveAndRefresh("Portfolio content reset to defaults.", document.getElementById("portfolio-data-transfer-status"));
   renderProjectWizard();
@@ -1970,6 +2130,7 @@ renderOverview();
 renderProjectsAdmin();
 renderExclusiveProjectsAdmin();
 renderBlogsAdmin();
+renderCvDownloadsAdmin();
 renderExperienceAdmin();
 populateProfileForm();
 

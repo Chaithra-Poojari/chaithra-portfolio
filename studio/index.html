@@ -86,6 +86,9 @@
             <button class="studio-nav-item" type="button" data-section-target="blogs">
               Blogs
             </button>
+            <button class="studio-nav-item" type="button" data-section-target="cv-downloads">
+              CV Downloads
+            </button>
             <button class="studio-nav-item" type="button" data-section-target="experience">
               Experience
             </button>
@@ -256,6 +259,21 @@
                   <p class="admin-status" id="blog-media-status"></p>
                 </div>
               </div>
+            </div>
+          </section>
+
+          <section class="studio-section is-hidden" data-section="cv-downloads">
+            <div class="admin-card section-card">
+              <div class="section-topline section-topline-spacious">
+                <div>
+                  <p class="admin-kicker">Resume Access</p>
+                  <h2>CV Downloads</h2>
+                  <p class="admin-muted">
+                    Review the people who requested your CV through the website download gate.
+                  </p>
+                </div>
+              </div>
+              <div class="manager-list cv-download-list" id="cv-download-list"></div>
             </div>
           </section>
 
@@ -435,6 +453,18 @@
                   <button class="admin-button admin-button-primary" type="button" data-profile-save="homepage-media" data-status-target="homepage-media-status">Save homepage media</button>
                 </div>
                 <p class="admin-status" id="homepage-media-status"></p>
+              </div>
+
+              <div class="admin-card admin-form-stack">
+                <p class="admin-kicker">Resume</p>
+                <h2>CV Download</h2>
+                <p class="admin-muted" id="cv-file-meta">No CV uploaded.</p>
+                <label>CV file <input type="file" id="profile-cv-file" accept=".pdf,application/pdf" /></label>
+                <button class="admin-button" type="button" id="remove-cv-file-button">Remove CV</button>
+                <div class="form-actions">
+                  <button class="admin-button admin-button-primary" type="button" data-profile-save="cv" data-status-target="cv-status">Save CV</button>
+                </div>
+                <p class="admin-status" id="cv-status"></p>
               </div>
 
               <div class="admin-card admin-form-stack">

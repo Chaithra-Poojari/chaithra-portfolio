@@ -72,11 +72,14 @@ const defaultPortfolioData = {
       accentDot: "#7b72ed"
     },
     tagline: "Designing calm, intelligent products for complex workflows.",
+    cvFile: "",
+    cvFileName: "",
+    cvAssetKey: "",
     about:
       "I'm a product designer who enjoys turning complexity into calm, useful interfaces. My work blends product thinking, systems design, and close collaboration to create experiences that feel both elegant and dependable.",
     contactCopy:
       "I'm open to product design roles, consulting, and collaborative projects focused on meaningful digital experiences.",
-    image: "./assets/profile-portrait.svg",
+    image: "",
     focusAreas: [
       {
         title: "AI-assisted workflows",
@@ -113,6 +116,7 @@ const defaultPortfolioData = {
       hint: "Enter password from my CV."
     }
   },
+  cvDownloads: [],
   projects: [
     {
       id: "atlas-care",
@@ -758,6 +762,9 @@ window.getPortfolioData = () => {
     const storedValue = localStorage.getItem(PORTFOLIO_STORAGE_KEY);
     const base = storedValue ? JSON.parse(storedValue) : deepClone(defaultPortfolioData);
     base.profile.image = normalizeAssetPath(base.profile.image || "", "");
+    base.profile.cvFile = base.profile.cvFile || "";
+    base.profile.cvFileName = base.profile.cvFileName || "";
+    base.profile.cvAssetKey = base.profile.cvAssetKey || "";
     base.profile.heroImage = normalizeAssetPath(
       base.profile.heroImage || defaultPortfolioData.profile.heroImage || "",
       ""
@@ -786,6 +793,7 @@ window.getPortfolioData = () => {
         hint: base.settings?.exclusiveAccess?.hint || "Enter password from my CV."
       }
     };
+    base.cvDownloads = ensureArray(base.cvDownloads);
     base.projects = ensureArray(base.projects).map(ensureProjectStructure);
     base.exclusiveProjects = sanitizeExclusiveProjects(base.exclusiveProjects);
     base.blogs = ensureArray(base.blogs).map(ensureBlogStructure);
@@ -798,6 +806,9 @@ window.getPortfolioData = () => {
       ""
     );
     fallback.profile.image = normalizeAssetPath(fallback.profile.image || "", "");
+    fallback.profile.cvFile = fallback.profile.cvFile || "";
+    fallback.profile.cvFileName = fallback.profile.cvFileName || "";
+    fallback.profile.cvAssetKey = fallback.profile.cvAssetKey || "";
     fallback.profile.brand = {
       displayName: fallback.profile.brand?.displayName || fallback.profile.name,
       caption: fallback.profile.brand?.caption || fallback.profile.role,
@@ -824,6 +835,7 @@ window.getPortfolioData = () => {
         hint: fallback.settings?.exclusiveAccess?.hint || "Enter password from my CV."
       }
     };
+    fallback.cvDownloads = ensureArray(fallback.cvDownloads);
     fallback.projects = fallback.projects.map(ensureProjectStructure);
     fallback.exclusiveProjects = sanitizeExclusiveProjects(fallback.exclusiveProjects);
     fallback.blogs = fallback.blogs.map(ensureBlogStructure);
@@ -846,4 +858,86 @@ window.resetPortfolioData = () => {
   resetValue.exclusiveProjects = sanitizeExclusiveProjects(resetValue.exclusiveProjects);
   resetValue.blogs = resetValue.blogs.map(ensureBlogStructure);
   return resetValue;
+};
+
+const MEDIA_DB_NAME = "cpw-media-db";
+const MEDIA_STORE_NAME = "assets";
+
+const openMediaDatabase = () =>
+  new Promise((resolve, reject) => {
+    if (typeof indexedDB === "undefined") {
+      reject(new Error("IndexedDB is unavailable."));
+      return;
+    }
+
+    const request = indexedDB.open(MEDIA_DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      const database = request.result;
+      if (!database.objectStoreNames.contains(MEDIA_STORE_NAME)) {
+        database.createObjectStore(MEDIA_STORE_NAME, { keyPath: "key" });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error || new Error("Could not open media database."));
+  });
+
+const mediaTransaction = async (mode, handler) => {
+  const database = await openMediaDatabase();
+  return new Promise((resolve, reject) => {
+    const transaction = database.transaction(MEDIA_STORE_NAME, mode);
+    const store = transaction.objectStore(MEDIA_STORE_NAME);
+    const result = handler(store);
+
+    transaction.oncomplete = () => {
+      database.close();
+      resolve(result?.result ?? result ?? null);
+    };
+    transaction.onerror = () => {
+      database.close();
+      reject(transaction.error || new Error("Media database transaction failed."));
+    };
+  });
+};
+
+window.saveCvAsset = async (dataUrl, fileName = "") => {
+  const key = `cv-${Date.now()}`;
+  await mediaTransaction("readwrite", (store) =>
+    store.put({
+      key,
+      type: "cv",
+      dataUrl,
+      fileName
+    })
+  );
+  return key;
+};
+
+window.getCvAsset = async (key) => {
+  if (!key) {
+    return null;
+  }
+
+  const database = await openMediaDatabase();
+  return new Promise((resolve, reject) => {
+    const transaction = database.transaction(MEDIA_STORE_NAME, "readonly");
+    const store = transaction.objectStore(MEDIA_STORE_NAME);
+    const request = store.get(key);
+
+    request.onsuccess = () => {
+      database.close();
+      resolve(request.result || null);
+    };
+    request.onerror = () => {
+      database.close();
+      reject(request.error || new Error("Could not read CV asset."));
+    };
+  });
+};
+
+window.removeCvAsset = async (key) => {
+  if (!key) {
+    return;
+  }
+
+  await mediaTransaction("readwrite", (store) => store.delete(key));
 };

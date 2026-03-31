@@ -256,6 +256,18 @@
                 <div class="profile-copy">
                   <h3 id="about-heading">Hi, I’m Chaithra.</h3>
                   <p id="about-intro"></p>
+                  <div class="about-actions" id="about-actions" hidden>
+                    <a class="button button-secondary" id="cv-download-link" href="#" download aria-disabled="true">
+                      <span class="button-icon" aria-hidden="true">
+                        <svg viewBox="0 0 20 20" focusable="false">
+                          <path d="M10 3V11"></path>
+                          <path d="M6.8 8.6L10 11.8L13.2 8.6"></path>
+                          <path d="M4 14.5H16"></path>
+                        </svg>
+                      </span>
+                      Download CV
+                    </a>
+                  </div>
                 </div>
               </article>
               <div class="skills-grid" id="skills-grid"></div>
@@ -391,6 +403,54 @@
             <button class="button button-primary" type="submit">Unlock Projects</button>
           </div>
           <p class="form-status" id="exclusive-unlock-status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+
+    <div class="exclusive-modal cv-modal" id="cv-modal" hidden>
+      <div class="exclusive-modal-backdrop" data-cv-close></div>
+      <div
+        class="exclusive-modal-card glass-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cv-modal-title"
+      >
+        <button
+          class="exclusive-modal-close"
+          type="button"
+          data-cv-close
+          aria-label="Close CV dialog"
+        >
+          Close
+        </button>
+        <p class="eyebrow">Download CV</p>
+        <h2 id="cv-modal-title">Share your work details</h2>
+        <p class="exclusive-modal-note">Enter your work email and company name to continue.</p>
+        <form id="cv-access-form" class="exclusive-unlock-form">
+          <label>
+            Your work email
+            <input
+              id="cv-email-input"
+              type="email"
+              name="email"
+              placeholder="name@company.com"
+              required
+            />
+          </label>
+          <label>
+            Company name
+            <input
+              id="cv-company-email-input"
+              type="text"
+              name="companyName"
+              placeholder="Acme Health"
+              required
+            />
+          </label>
+          <div class="exclusive-modal-actions">
+            <button class="button button-primary" type="submit">Download CV</button>
+          </div>
+          <p class="form-status" id="cv-access-status" aria-live="polite"></p>
         </form>
       </div>
     </div>

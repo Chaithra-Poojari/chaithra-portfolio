@@ -26,6 +26,11 @@ const exclusiveUnlockForm = document.getElementById("exclusive-unlock-form");
 const exclusivePasswordInput = document.getElementById("exclusive-password-input");
 const exclusiveUnlockStatus = document.getElementById("exclusive-unlock-status");
 const exclusiveModalHint = document.getElementById("exclusive-modal-hint");
+const cvModal = document.getElementById("cv-modal");
+const cvAccessForm = document.getElementById("cv-access-form");
+const cvEmailInput = document.getElementById("cv-email-input");
+const cvCompanyEmailInput = document.getElementById("cv-company-email-input");
+const cvAccessStatus = document.getElementById("cv-access-status");
 let footerClickTimer = null;
 let exclusiveUnlockTarget = "";
 let unlockedExclusiveProjects = [];
@@ -310,6 +315,148 @@ const closeExclusiveModal = () => {
   exclusiveUnlockTarget = "";
 };
 
+const openCvModal = () => {
+  if (!cvModal) {
+    return;
+  }
+
+  cvAccessStatus.textContent = "";
+  cvEmailInput.value = "";
+  cvCompanyEmailInput.value = "";
+  cvModal.hidden = false;
+  document.body.classList.add("modal-open");
+  cvEmailInput.focus();
+};
+
+const closeCvModal = () => {
+  if (!cvModal) {
+    return;
+  }
+
+  cvModal.hidden = true;
+  document.body.classList.remove("modal-open");
+};
+
+const isPdfLikeDataUrl = (value, fileName = "") => {
+  const dataUrl = String(value || "");
+  const normalizedName = String(fileName || "").toLowerCase();
+  return (
+    /^data:application\/pdf;base64,/i.test(dataUrl) ||
+    /^data:application\/x-pdf;base64,/i.test(dataUrl) ||
+    (/^data:application\/octet-stream;base64,/i.test(dataUrl) && normalizedName.endsWith(".pdf"))
+  );
+};
+
+const dataUrlToBlob = (dataUrl) => {
+  const matches = String(dataUrl || "").match(/^data:([^;]+);base64,(.*)$/i);
+  if (!matches) {
+    throw new Error("Invalid PDF file data.");
+  }
+
+  const mimeType = matches[1];
+  const binary = atob(matches[2]);
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  return new Blob([bytes], { type: mimeType });
+};
+
+const resolveCvSource = async (profile) => {
+  const assetKey = String(profile.cvAssetKey || "").trim();
+  if (assetKey && typeof window.getCvAsset === "function") {
+    try {
+      const storedAsset = await window.getCvAsset(assetKey);
+      if (storedAsset?.dataUrl) {
+        return {
+          dataUrl: storedAsset.dataUrl,
+          fileName: storedAsset.fileName || profile.cvFileName || "Chaithra-Poojary CV.pdf"
+        };
+      }
+    } catch {
+      // Fall through to legacy localStorage-backed CV data when IndexedDB is unavailable.
+    }
+  }
+
+  return {
+    dataUrl: profile.cvFile || "",
+    fileName: profile.cvFileName || "Chaithra-Poojary CV.pdf"
+  };
+};
+
+const downloadCvFile = async (profile) => {
+  const cvSource = await resolveCvSource(profile);
+  const fileBlob = dataUrlToBlob(cvSource.dataUrl);
+  const objectUrl = URL.createObjectURL(fileBlob);
+  const tempLink = document.createElement("a");
+  tempLink.href = objectUrl;
+  tempLink.download = cvSource.fileName || "Chaithra-Poojary CV.pdf";
+  document.body.append(tempLink);
+  tempLink.click();
+  tempLink.remove();
+  URL.revokeObjectURL(objectUrl);
+};
+
+const isValidWorkEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+const isGenericEmailDomain = (value) => {
+  const domain = String(value || "").split("@")[1]?.toLowerCase() || "";
+  return [
+    "gmail.com",
+    "yahoo.com",
+    "hotmail.com",
+    "outlook.com",
+    "icloud.com",
+    "proton.me",
+    "protonmail.com"
+  ].includes(domain);
+};
+
+const normalizeCompanyToken = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+const getDomainCompanyHint = (email) => {
+  const domain = String(email || "").split("@")[1]?.toLowerCase() || "";
+  const withoutTld = domain.split(".").slice(0, -1).join(" ") || domain;
+  return normalizeCompanyToken(
+    withoutTld.replace(
+      /\b(mail|email|careers|jobs|hr|people|talent|team|global|group|app|hq|inc|co|corp|company|studio|design|labs|tech)\b/g,
+      " "
+    )
+  );
+};
+
+const doesCompanyNameMatchEmail = (email, companyName) => {
+  const company = normalizeCompanyToken(companyName);
+  const domainHint = getDomainCompanyHint(email);
+
+  if (!company || !domainHint) {
+    return false;
+  }
+
+  const companyWords = company.split(" ").filter(Boolean);
+  const domainWords = domainHint.split(" ").filter(Boolean);
+
+  return companyWords.some((word) => word.length > 2 && domainWords.includes(word));
+};
+
+const recordCvDownloadLead = (email, companyName) => {
+  const portfolioData = window.getPortfolioData?.();
+  if (!portfolioData) {
+    return;
+  }
+
+  const nextEntry = {
+    email,
+    companyName,
+    requestedAt: new Date().toISOString()
+  };
+
+  const existingEntries = Array.isArray(portfolioData.cvDownloads) ? portfolioData.cvDownloads : [];
+  portfolioData.cvDownloads = [nextEntry, ...existingEntries].slice(0, 100);
+  window.savePortfolioData?.(portfolioData);
+};
+
 const navigateWithTransition = (href) => {
   if (!href) {
     return;
@@ -322,7 +469,7 @@ const navigateWithTransition = (href) => {
 };
 
 const openAdminStudio = () => {
-  window.open("/admin", "_blank", "noopener");
+  window.open("/studio/", "_blank", "noopener");
 };
 
 const setMenuState = (isOpen) => {
@@ -665,6 +812,29 @@ const renderPortfolioPage = async () => {
   document.getElementById("about-heading").textContent = `Hi, I'm ${data.profile.firstName}.`;
   document.getElementById("about-intro").textContent = data.profile.about;
   document.getElementById("contact-copy").textContent = data.profile.contactCopy;
+  const cvActions = document.getElementById("about-actions");
+  const cvDownloadLink = document.getElementById("cv-download-link");
+  if (cvActions && cvDownloadLink) {
+    const cvSource = await resolveCvSource(data.profile);
+    const hasCv = isPdfLikeDataUrl(cvSource.dataUrl, cvSource.fileName);
+    cvActions.hidden = !hasCv;
+    cvDownloadLink.href = hasCv ? cvSource.dataUrl : "#";
+    cvDownloadLink.setAttribute(
+      "download",
+      cvSource.fileName || "Chaithra-Poojary CV.pdf"
+    );
+    cvDownloadLink.setAttribute("aria-disabled", String(!hasCv));
+    cvDownloadLink.classList.toggle("is-disabled", !hasCv);
+    cvDownloadLink.onclick = (event) => {
+      if (!hasCv) {
+        event.preventDefault();
+        return;
+      }
+
+      event.preventDefault();
+      openCvModal();
+    };
+  }
 
   const profileImage = document.getElementById("profile-image");
   const profileVisual = document.getElementById("profile-visual");
@@ -1132,6 +1302,10 @@ document.querySelectorAll("[data-exclusive-close]").forEach((button) => {
   button.addEventListener("click", closeExclusiveModal);
 });
 
+document.querySelectorAll("[data-cv-close]").forEach((button) => {
+  button.addEventListener("click", closeCvModal);
+});
+
 exclusiveUnlockForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const password = exclusivePasswordInput.value.trim();
@@ -1159,6 +1333,36 @@ exclusiveUnlockForm?.addEventListener("submit", async (event) => {
   } catch (error) {
     exclusiveUnlockStatus.textContent =
       error.message || "Could not unlock the exclusive section.";
+  }
+});
+
+cvAccessForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const data = window.getPortfolioData();
+  const email = cvEmailInput.value.trim();
+  const companyName = cvCompanyEmailInput.value.trim();
+
+  if (!isValidWorkEmail(email) || !companyName) {
+    cvAccessStatus.textContent = "Enter a valid work email and company name to continue.";
+    return;
+  }
+
+  if (isGenericEmailDomain(email)) {
+    cvAccessStatus.textContent = "Please use your work email address.";
+    return;
+  }
+
+  if (!doesCompanyNameMatchEmail(email, companyName)) {
+    cvAccessStatus.textContent = "Your work email and company name do not seem to match.";
+    return;
+  }
+
+  try {
+    recordCvDownloadLead(email, companyName);
+    await downloadCvFile(data.profile);
+    closeCvModal();
+  } catch {
+    cvAccessStatus.textContent = "Could not download the CV right now. Please try again.";
   }
 });
 
