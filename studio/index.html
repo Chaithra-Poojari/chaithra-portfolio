@@ -329,8 +329,13 @@
                 <label>Tagline <input type="text" id="profile-tagline" required /></label>
                 <label>About <textarea id="profile-about" rows="5"></textarea></label>
                 <label>Contact copy <textarea id="profile-contact-copy" rows="4"></textarea></label>
+                <div class="brand-icon-preview" id="profile-image-preview" aria-hidden="true"></div>
                 <label>Profile image <input type="file" id="profile-image-input" accept="image/*" /></label>
                 <button class="admin-button" type="button" id="remove-profile-image-button">Remove profile image</button>
+                <div class="form-actions">
+                  <button class="admin-button admin-button-primary" type="button" data-profile-save="identity" data-status-target="identity-status">Save identity</button>
+                </div>
+                <p class="admin-status" id="identity-status"></p>
               </div>
 
               <div class="admin-card admin-form-stack">
@@ -341,6 +346,10 @@
                 <p class="admin-muted">
                   Use this area only for the logo lockup text. It stays separate from the profile fields above.
                 </p>
+                <div class="form-actions">
+                  <button class="admin-button admin-button-primary" type="button" data-profile-save="brand-text" data-status-target="brand-text-status">Save brand text</button>
+                </div>
+                <p class="admin-status" id="brand-text-status"></p>
               </div>
 
               <div class="admin-card admin-form-stack">
@@ -356,6 +365,10 @@
                 <p class="admin-muted">
                   Adjust the icon accent independently from the logo text so the identity system stays flexible.
                 </p>
+                <div class="form-actions">
+                  <button class="admin-button admin-button-primary" type="button" data-profile-save="brand-icon" data-status-target="brand-icon-status">Save logo icon</button>
+                </div>
+                <p class="admin-status" id="brand-icon-status"></p>
               </div>
 
               <div class="admin-card admin-form-stack">
@@ -366,6 +379,10 @@
                 <p class="admin-muted">
                   Upload a dedicated favicon for browser tabs. If left empty, the site will keep using the generated logo favicon.
                 </p>
+                <div class="form-actions">
+                  <button class="admin-button admin-button-primary" type="button" data-profile-save="favicon" data-status-target="favicon-status">Save favicon</button>
+                </div>
+                <p class="admin-status" id="favicon-status"></p>
               </div>
 
               <div class="admin-card admin-form-stack">
@@ -376,8 +393,12 @@
                 <label>Exclusive projects password <input type="text" id="exclusive-password-input-admin" placeholder="Change exclusive-project password" /></label>
                 <label>Exclusive section hint <input type="text" id="exclusive-password-hint" placeholder="Enter password from my CV." /></label>
                 <p class="admin-muted">
-                  You can change the admin password and the exclusive-project password here at any time. Click <strong>Save profile</strong> below to apply them.
+                  You can change the admin password and the exclusive-project password here at any time.
                 </p>
+                <div class="form-actions">
+                  <button class="admin-button admin-button-primary" type="button" data-profile-save="studio-access" data-status-target="studio-access-status">Save access</button>
+                </div>
+                <p class="admin-status" id="studio-access-status"></p>
               </div>
 
               <div class="admin-card admin-form-stack">
@@ -393,6 +414,10 @@
                 <label>UI skills <input type="text" id="skills-ui" /></label>
                 <label>Tools <input type="text" id="skills-tools" /></label>
                 <label>Systems thinking <input type="text" id="skills-systems" /></label>
+                <div class="form-actions">
+                  <button class="admin-button admin-button-primary" type="button" data-profile-save="portfolio-system" data-status-target="portfolio-system-status">Save portfolio system</button>
+                </div>
+                <p class="admin-status" id="portfolio-system-status"></p>
               </div>
 
               <div class="admin-card admin-form-stack">
@@ -404,18 +429,12 @@
                 <div class="brand-icon-preview banner-preview" id="banner-preview" aria-hidden="true"></div>
                 <label>Banner image <input type="file" id="profile-banner-image" accept="image/*" /></label>
                 <p class="admin-muted">
-                  Banner changes are saved when you click <strong>Save profile</strong>.
+                  Banner changes apply when you save this section.
                 </p>
-              </div>
-
-              <div class="admin-card admin-form-stack">
-                <p class="admin-kicker">Save Changes</p>
-                <h2>Profile Actions</h2>
                 <div class="form-actions">
-                  <button class="admin-button admin-button-primary" type="submit">Save profile</button>
-                  <button class="admin-button" type="button" id="reset-data-button">Reset content</button>
+                  <button class="admin-button admin-button-primary" type="button" data-profile-save="homepage-media" data-status-target="homepage-media-status">Save homepage media</button>
                 </div>
-                <p class="admin-status" id="profile-status"></p>
+                <p class="admin-status" id="homepage-media-status"></p>
               </div>
 
               <div class="admin-card admin-form-stack">
@@ -427,6 +446,7 @@
                 <div class="form-actions">
                   <button class="admin-button" type="button" id="export-portfolio-data-button">Export content JSON</button>
                   <button class="admin-button" type="button" id="import-portfolio-data-button">Import content JSON</button>
+                  <button class="admin-button" type="button" id="reset-data-button">Reset content</button>
                 </div>
                 <input class="is-hidden" type="file" id="portfolio-data-import" accept="application/json" />
                 <p class="admin-status" id="portfolio-data-transfer-status"></p>

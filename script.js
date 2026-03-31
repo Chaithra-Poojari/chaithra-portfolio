@@ -322,7 +322,7 @@ const navigateWithTransition = (href) => {
 };
 
 const openAdminStudio = () => {
-  window.open("/studio/", "_blank", "noopener");
+  window.open("/admin", "_blank", "noopener");
 };
 
 const setMenuState = (isOpen) => {
@@ -668,9 +668,11 @@ const renderPortfolioPage = async () => {
 
   const profileImage = document.getElementById("profile-image");
   const profileVisual = document.getElementById("profile-visual");
+  const profileCard = profileVisual?.closest(".profile-card");
   if (profileImage && profileVisual) {
     const hasProfileImage = Boolean(data.profile.image);
     profileVisual.hidden = !hasProfileImage;
+    profileCard?.classList.toggle("is-text-only", !hasProfileImage);
     profileImage.src = hasProfileImage ? data.profile.image : "";
     profileImage.alt = hasProfileImage ? `Portrait of ${data.profile.name}` : "";
   }

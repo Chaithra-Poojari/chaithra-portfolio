@@ -403,6 +403,9 @@ const updateImagePreview = (elementId, image, emptyLabel = "No image") => {
     : `<span>${emptyLabel}</span>`;
 };
 
+const getProfileStatusElement = (submitter = null) =>
+  document.getElementById(submitter?.dataset?.statusTarget || "identity-status");
+
 const syncStudioSelections = () => {
   selectedProjectId = portfolioData.projects[0]?.id || "";
   selectedBlogId = portfolioData.blogs[0]?.id || "";
@@ -411,6 +414,8 @@ const syncStudioSelections = () => {
 const saveAndRefresh = (message, statusElement = null) => {
   try {
     window.savePortfolioData(portfolioData);
+    portfolioData = window.getPortfolioData();
+    syncStudioSelections();
     renderOverview();
     renderProjectsAdmin();
     renderExclusiveProjectsAdmin();
@@ -1260,6 +1265,11 @@ const populateProfileForm = () => {
     localStorage.getItem(EXCLUSIVE_ADMIN_PASSWORD_STORAGE_KEY) || DEFAULT_EXCLUSIVE_PASSWORD;
   document.getElementById("exclusive-password-hint").value =
     getExclusiveSettings().hint || "Enter password from my CV.";
+  updateImagePreview(
+    "profile-image-preview",
+    removeProfileImageOnSave ? "" : pendingProfileUploads.profileImage || profile.image,
+    "No profile image"
+  );
   updateImagePreview("banner-preview", pendingProfileUploads.bannerImage || profile.heroImage, "No banner");
   renderStudioBrand();
   renderDashboardMediaAdmin();
@@ -1285,9 +1295,10 @@ const savePendingProjectMedia = () => {
     }
   });
 
+  pendingProjectMedia = {};
   const didSave = saveAndRefresh("Project images saved.", projectMediaStatus);
-  if (didSave) {
-    pendingProjectMedia = {};
+  if (!didSave) {
+    pendingProjectMedia = Object.fromEntries(entries);
   }
 };
 
@@ -1307,9 +1318,10 @@ const savePendingBlogMedia = () => {
     blog.coverImage = image;
   });
 
+  pendingBlogMedia = {};
   const didSave = saveAndRefresh("Blog images saved.", blogMediaStatus);
-  if (didSave) {
-    pendingBlogMedia = {};
+  if (!didSave) {
+    pendingBlogMedia = Object.fromEntries(entries);
   }
 };
 
@@ -1608,9 +1620,9 @@ saveBlogMediaButton?.addEventListener("click", savePendingBlogMedia);
 
 document.getElementById("profile-banner-image")?.addEventListener("change", async (event) => {
   const uploadedBannerImage = await readFileAsDataUrl(event.target.files?.[0], {
-    maxWidth: 1600,
-    maxHeight: 1000,
-    quality: 0.82,
+    maxWidth: 1280,
+    maxHeight: 720,
+    quality: 0.72,
     mimeType: "image/webp",
     fit: "cover"
   });
@@ -1621,14 +1633,14 @@ document.getElementById("profile-banner-image")?.addEventListener("change", asyn
   pendingProfileUploads.bannerImage = uploadedBannerImage;
   updateImagePreview("banner-preview", uploadedBannerImage, "No banner");
 
-  setStatus(document.getElementById("profile-status"), "Banner selected. Click save profile to apply.");
+  setStatus(document.getElementById("homepage-media-status"), "Banner selected. Click save homepage media to apply.");
 });
 
 document.getElementById("profile-image-input")?.addEventListener("change", async (event) => {
   const uploadedImage = await readFileAsDataUrl(event.target.files?.[0], {
-    maxWidth: 1200,
-    maxHeight: 1200,
-    quality: 0.82,
+    maxWidth: 720,
+    maxHeight: 720,
+    quality: 0.74,
     mimeType: "image/webp"
   });
   if (!uploadedImage) {
@@ -1637,22 +1649,24 @@ document.getElementById("profile-image-input")?.addEventListener("change", async
 
   pendingProfileUploads.profileImage = uploadedImage;
   removeProfileImageOnSave = false;
-  setStatus(document.getElementById("profile-status"), "Profile image selected. Click save profile to apply.");
+  updateImagePreview("profile-image-preview", uploadedImage, "No profile image");
+  setStatus(document.getElementById("identity-status"), "Profile image selected. Click save identity to apply.");
 });
 
 removeProfileImageButton?.addEventListener("click", () => {
   pendingProfileUploads.profileImage = "";
   removeProfileImageOnSave = true;
   document.getElementById("profile-image-input").value = "";
-  setStatus(document.getElementById("profile-status"), "Profile image will be removed when you save profile.");
+  updateImagePreview("profile-image-preview", "", "No profile image");
+  setStatus(document.getElementById("identity-status"), "Profile image will be removed when you save identity.");
 });
 
 document.getElementById("brand-icon-image")?.addEventListener("change", async (event) => {
   const uploadedIcon = await readFileAsDataUrl(event.target.files?.[0], {
-    maxWidth: 512,
-    maxHeight: 512,
-    quality: 0.9,
-    mimeType: "image/png"
+    maxWidth: 256,
+    maxHeight: 256,
+    quality: 0.82,
+    mimeType: "image/webp"
   });
   if (!uploadedIcon) {
     return;
@@ -1660,14 +1674,14 @@ document.getElementById("brand-icon-image")?.addEventListener("change", async (e
 
   pendingProfileUploads.brandIcon = uploadedIcon;
   renderStudioBrand();
-  setStatus(document.getElementById("profile-status"), "Logo icon selected. Click save profile to apply.");
+  setStatus(document.getElementById("brand-icon-status"), "Logo icon selected. Click save logo icon to apply.");
 });
 
 document.getElementById("favicon-image")?.addEventListener("change", async (event) => {
   const uploadedFavicon = await readFileAsDataUrl(event.target.files?.[0], {
-    maxWidth: 128,
-    maxHeight: 128,
-    quality: 0.92,
+    maxWidth: 96,
+    maxHeight: 96,
+    quality: 0.84,
     mimeType: "image/png"
   });
   if (!uploadedFavicon) {
@@ -1676,7 +1690,7 @@ document.getElementById("favicon-image")?.addEventListener("change", async (even
 
   pendingProfileUploads.favicon = uploadedFavicon;
   renderStudioBrand();
-  setStatus(document.getElementById("profile-status"), "Favicon selected. Click save profile to apply.");
+  setStatus(document.getElementById("favicon-status"), "Favicon selected. Click save favicon to apply.");
 });
 
 blogForm.addEventListener("submit", async (event) => {
@@ -1745,16 +1759,21 @@ document.getElementById("new-experience-button").addEventListener("click", () =>
   saveAndRefresh("Experience added.");
 });
 
-document.getElementById("profile-form").addEventListener("submit", async (event) => {
-  event.preventDefault();
+const saveProfileSection = async (submitter) => {
+  const profileStatusElement = getProfileStatusElement(submitter);
+  const saveSection = submitter?.dataset?.profileSave || "identity";
   const exclusivePasswordValue = document.getElementById("exclusive-password-input-admin").value.trim();
   const exclusiveSettings = getExclusiveSettings();
   const currentExclusivePassword =
     localStorage.getItem(EXCLUSIVE_ADMIN_PASSWORD_STORAGE_KEY) || DEFAULT_EXCLUSIVE_PASSWORD;
+  const exclusivePasswordChanged =
+    saveSection === "studio-access" &&
+    Boolean(exclusivePasswordValue) &&
+    exclusivePasswordValue !== currentExclusivePassword;
   let exclusivePasswordHash = exclusiveSettings.passwordHash;
   let exclusivePasswordSalt = exclusiveSettings.passwordSalt;
 
-  if (exclusivePasswordValue && (portfolioData.exclusiveProjects || []).length) {
+  if (exclusivePasswordChanged && (portfolioData.exclusiveProjects || []).length) {
     try {
       portfolioData.exclusiveProjects = await Promise.all(
         portfolioData.exclusiveProjects.map(async (project) => {
@@ -1773,95 +1792,166 @@ document.getElementById("profile-form").addEventListener("submit", async (event)
       );
     } catch {
       setStatus(
-        document.getElementById("profile-status"),
+        profileStatusElement,
         "Could not update the exclusive password because existing projects could not be re-encrypted."
       );
       return;
     }
   }
 
-  if (exclusivePasswordValue) {
+  if (exclusivePasswordChanged) {
     const hashed = await window.hashExclusivePassword(exclusivePasswordValue);
     exclusivePasswordHash = hashed.hash;
     exclusivePasswordSalt = hashed.salt;
   }
 
-  portfolioData.profile = {
-    ...portfolioData.profile,
-    name: document.getElementById("profile-name").value.trim(),
-    firstName: document.getElementById("profile-first-name").value.trim(),
-    role: document.getElementById("profile-role").value.trim(),
-    tagline: document.getElementById("profile-tagline").value.trim(),
-    about: document.getElementById("profile-about").value.trim(),
-    contactCopy: document.getElementById("profile-contact-copy").value.trim(),
-    image: removeProfileImageOnSave ? "" : pendingProfileUploads.profileImage || portfolioData.profile.image,
-    heroImage: pendingProfileUploads.bannerImage || portfolioData.profile.heroImage,
-    focusAreas: [
-      document.getElementById("focus-one").value.trim(),
-      document.getElementById("focus-two").value.trim(),
-      document.getElementById("focus-three").value.trim()
-    ]
-      .filter(Boolean)
-      .map((title) => ({ title, description: "Editable focus area from studio." })),
-    socials: [
-      { label: "LinkedIn", url: document.getElementById("social-linkedin").value.trim() },
-      { label: "Dribbble", url: document.getElementById("social-dribbble").value.trim() },
-      { label: "GitHub", url: document.getElementById("social-github").value.trim() }
-    ],
-    brand: {
-      displayName: document.getElementById("brand-display-name").value.trim() || document.getElementById("profile-name").value.trim(),
-      caption: document.getElementById("brand-caption-text").value.trim() || document.getElementById("profile-role").value.trim(),
-      iconImage: pendingProfileUploads.brandIcon || portfolioData.profile.brand?.iconImage || "",
-      faviconImage: pendingProfileUploads.favicon || portfolioData.profile.brand?.faviconImage || "",
-      accentStart: document.getElementById("brand-accent-start").value,
-      accentEnd: document.getElementById("brand-accent-end").value,
-      accentDot: document.getElementById("brand-accent-dot").value
-    },
-    skills: [
-      { group: "UX", items: parseTags(document.getElementById("skills-ux").value) },
-      { group: "UI", items: parseTags(document.getElementById("skills-ui").value) },
-      { group: "Tools", items: parseTags(document.getElementById("skills-tools").value) },
-      { group: "Systems Thinking", items: parseTags(document.getElementById("skills-systems").value) }
-    ]
-  };
-  portfolioData.settings = {
-    ...portfolioData.settings,
-    exclusiveAccess: {
-      passwordHash: exclusivePasswordHash,
-      passwordSalt: exclusivePasswordSalt,
-      hint:
-        document.getElementById("exclusive-password-hint").value.trim() ||
-        "Enter password from my CV."
-    }
-  };
-
-  const didSave = saveAndRefresh("Profile updated.", document.getElementById("profile-status"));
-  if (didSave) {
-    pendingProfileUploads = {
-      profileImage: "",
-      bannerImage: "",
-      brandIcon: "",
-      favicon: ""
+  if (saveSection === "identity") {
+    portfolioData.profile = {
+      ...portfolioData.profile,
+      name: document.getElementById("profile-name").value.trim(),
+      firstName: document.getElementById("profile-first-name").value.trim(),
+      role: document.getElementById("profile-role").value.trim(),
+      tagline: document.getElementById("profile-tagline").value.trim(),
+      about: document.getElementById("profile-about").value.trim(),
+      contactCopy: document.getElementById("profile-contact-copy").value.trim(),
+      image: removeProfileImageOnSave ? "" : pendingProfileUploads.profileImage || portfolioData.profile.image
     };
-    removeProfileImageOnSave = false;
+  }
+
+  if (saveSection === "brand-text") {
+    portfolioData.profile = {
+      ...portfolioData.profile,
+      brand: {
+        ...portfolioData.profile.brand,
+        displayName:
+          document.getElementById("brand-display-name").value.trim() ||
+          document.getElementById("profile-name").value.trim(),
+        caption:
+          document.getElementById("brand-caption-text").value.trim() ||
+          document.getElementById("profile-role").value.trim()
+      }
+    };
+  }
+
+  if (saveSection === "brand-icon") {
+    portfolioData.profile = {
+      ...portfolioData.profile,
+      brand: {
+        ...portfolioData.profile.brand,
+        iconImage: pendingProfileUploads.brandIcon || portfolioData.profile.brand?.iconImage || "",
+        accentStart: document.getElementById("brand-accent-start").value,
+        accentEnd: document.getElementById("brand-accent-end").value,
+        accentDot: document.getElementById("brand-accent-dot").value
+      }
+    };
+  }
+
+  if (saveSection === "favicon") {
+    portfolioData.profile = {
+      ...portfolioData.profile,
+      brand: {
+        ...portfolioData.profile.brand,
+        faviconImage: pendingProfileUploads.favicon || portfolioData.profile.brand?.faviconImage || ""
+      }
+    };
+  }
+
+  if (saveSection === "portfolio-system") {
+    portfolioData.profile = {
+      ...portfolioData.profile,
+      focusAreas: [
+        document.getElementById("focus-one").value.trim(),
+        document.getElementById("focus-two").value.trim(),
+        document.getElementById("focus-three").value.trim()
+      ]
+        .filter(Boolean)
+        .map((title) => ({ title, description: "Editable focus area from studio." })),
+      socials: [
+        { label: "LinkedIn", url: document.getElementById("social-linkedin").value.trim() },
+        { label: "Dribbble", url: document.getElementById("social-dribbble").value.trim() },
+        { label: "GitHub", url: document.getElementById("social-github").value.trim() }
+      ],
+      skills: [
+        { group: "UX", items: parseTags(document.getElementById("skills-ux").value) },
+        { group: "UI", items: parseTags(document.getElementById("skills-ui").value) },
+        { group: "Tools", items: parseTags(document.getElementById("skills-tools").value) },
+        { group: "Systems Thinking", items: parseTags(document.getElementById("skills-systems").value) }
+      ]
+    };
+  }
+
+  if (saveSection === "homepage-media") {
+    portfolioData.profile = {
+      ...portfolioData.profile,
+      heroImage: pendingProfileUploads.bannerImage || portfolioData.profile.heroImage
+    };
+  }
+
+  if (saveSection === "studio-access") {
+    portfolioData.settings = {
+      ...portfolioData.settings,
+      exclusiveAccess: {
+        passwordHash: exclusivePasswordHash,
+        passwordSalt: exclusivePasswordSalt,
+        hint:
+          document.getElementById("exclusive-password-hint").value.trim() ||
+          "Enter password from my CV."
+      }
+    };
+  }
+
+  const didSave = saveAndRefresh("Changes saved.", profileStatusElement);
+  if (didSave) {
+    if (saveSection === "identity") {
+      pendingProfileUploads.profileImage = "";
+      removeProfileImageOnSave = false;
+    }
+    if (saveSection === "homepage-media") {
+      pendingProfileUploads.bannerImage = "";
+    }
+    if (saveSection === "brand-icon") {
+      pendingProfileUploads.brandIcon = "";
+    }
+    if (saveSection === "favicon") {
+      pendingProfileUploads.favicon = "";
+    }
     renderStudioBrand();
     const nextPassword = document.getElementById("admin-password-input").value.trim();
-    if (nextPassword) {
+    if (saveSection === "studio-access" && nextPassword) {
       localStorage.setItem(ADMIN_PASSWORD_STORAGE_KEY, nextPassword);
     }
-    if (exclusivePasswordValue) {
+    if (exclusivePasswordChanged) {
       localStorage.setItem(EXCLUSIVE_ADMIN_PASSWORD_STORAGE_KEY, exclusivePasswordValue);
     }
     populateProfileForm();
   }
+};
+
+document.getElementById("profile-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+});
+
+document.querySelectorAll("[data-profile-save]").forEach((button) => {
+  button.addEventListener("click", async () => {
+    await saveProfileSection(button);
+  });
 });
 
 document.getElementById("reset-data-button").addEventListener("click", () => {
   portfolioData = window.resetPortfolioData();
   syncStudioSelections();
   currentProjectDraft = null;
+  pendingProjectMedia = {};
+  pendingBlogMedia = {};
+  pendingProfileUploads = {
+    profileImage: "",
+    bannerImage: "",
+    brandIcon: "",
+    favicon: ""
+  };
+  removeProfileImageOnSave = false;
   localStorage.removeItem(PROJECT_DRAFT_STORAGE_KEY);
-  saveAndRefresh("Portfolio content reset to defaults.", document.getElementById("profile-status"));
+  saveAndRefresh("Portfolio content reset to defaults.", document.getElementById("portfolio-data-transfer-status"));
   renderProjectWizard();
 });
 

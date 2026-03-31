@@ -757,10 +757,7 @@ window.getPortfolioData = () => {
   try {
     const storedValue = localStorage.getItem(PORTFOLIO_STORAGE_KEY);
     const base = storedValue ? JSON.parse(storedValue) : deepClone(defaultPortfolioData);
-    base.profile.image = normalizeAssetPath(
-      base.profile.image || defaultPortfolioData.profile.image || "",
-      ""
-    );
+    base.profile.image = normalizeAssetPath(base.profile.image || "", "");
     base.profile.heroImage = normalizeAssetPath(
       base.profile.heroImage || defaultPortfolioData.profile.heroImage || "",
       ""
@@ -800,10 +797,7 @@ window.getPortfolioData = () => {
       fallback.profile.heroImage || defaultPortfolioData.profile.heroImage || "",
       ""
     );
-    fallback.profile.image = normalizeAssetPath(
-      fallback.profile.image || defaultPortfolioData.profile.image || "",
-      ""
-    );
+    fallback.profile.image = normalizeAssetPath(fallback.profile.image || "", "");
     fallback.profile.brand = {
       displayName: fallback.profile.brand?.displayName || fallback.profile.name,
       caption: fallback.profile.brand?.caption || fallback.profile.role,

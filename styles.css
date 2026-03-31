@@ -218,22 +218,34 @@ textarea {
 
 .petal {
   position: absolute;
-  width: 14px;
-  height: 10px;
+  width: 24px;
+  height: 17px;
   border-radius: 70% 30% 70% 30%;
   background: linear-gradient(145deg, rgba(255, 239, 247, 0.85), rgba(231, 190, 219, 0.72));
   filter: blur(0.2px);
   animation: petals-drift linear infinite;
 }
 
-.petal-1 { left: 10%; top: 18%; animation-duration: 18s; animation-delay: -2s; }
-.petal-2 { left: 28%; top: 8%; animation-duration: 21s; animation-delay: -7s; }
-.petal-3 { left: 52%; top: 16%; animation-duration: 19s; animation-delay: -11s; }
-.petal-4 { left: 74%; top: 10%; animation-duration: 23s; animation-delay: -5s; }
-.petal-5 { left: 88%; top: 20%; animation-duration: 20s; animation-delay: -13s; }
-.petal-6 { left: 18%; top: 4%; animation-duration: 24s; animation-delay: -9s; }
-.petal-7 { left: 44%; top: 2%; animation-duration: 22s; animation-delay: -3s; }
-.petal-8 { left: 66%; top: 7%; animation-duration: 25s; animation-delay: -15s; }
+.petal-1 { left: 8%; top: 14%; animation-duration: 18s; animation-delay: -2s; }
+.petal-2 { left: 18%; top: 24%; animation-duration: 21s; animation-delay: -7s; }
+.petal-3 { left: 28%; top: 10%; animation-duration: 19s; animation-delay: -11s; }
+.petal-4 { left: 38%; top: 28%; animation-duration: 23s; animation-delay: -5s; }
+.petal-5 { left: 48%; top: 16%; animation-duration: 20s; animation-delay: -13s; }
+.petal-6 { left: 58%; top: 30%; animation-duration: 24s; animation-delay: -9s; }
+.petal-7 { left: 68%; top: 12%; animation-duration: 22s; animation-delay: -3s; }
+.petal-8 { left: 78%; top: 26%; animation-duration: 25s; animation-delay: -15s; }
+.petal-9 { left: 88%; top: 18%; animation-duration: 20s; animation-delay: -4s; }
+.petal-10 { left: 14%; top: 36%; animation-duration: 26s; animation-delay: -10s; }
+.petal-11 { left: 24%; top: 20%; animation-duration: 21s; animation-delay: -6s; }
+.petal-12 { left: 34%; top: 40%; animation-duration: 24s; animation-delay: -12s; }
+.petal-13 { left: 44%; top: 22%; animation-duration: 23s; animation-delay: -8s; }
+.petal-14 { left: 54%; top: 38%; animation-duration: 19s; animation-delay: -14s; }
+.petal-15 { left: 64%; top: 18%; animation-duration: 27s; animation-delay: -1s; }
+.petal-16 { left: 74%; top: 34%; animation-duration: 22s; animation-delay: -16s; }
+.petal-17 { left: 84%; top: 24%; animation-duration: 24s; animation-delay: -5s; }
+.petal-18 { left: 10%; top: 46%; animation-duration: 28s; animation-delay: -9s; }
+.petal-19 { left: 46%; top: 48%; animation-duration: 20s; animation-delay: -17s; }
+.petal-20 { left: 82%; top: 44%; animation-duration: 25s; animation-delay: -11s; }
 
 body[data-theme="light"] .bg-sky {
   background:
@@ -270,15 +282,16 @@ body[data-theme="light"] .bg-trees {
 }
 
 body[data-theme="light"] .bg-petals {
-  opacity: 0.74;
+  opacity: 0.94;
 }
 
 body[data-theme="light"] .petal {
-  width: 16px;
-  height: 8px;
+  width: 30px;
+  height: 16px;
   border-radius: 80% 20% 80% 20%;
-  background: linear-gradient(145deg, rgba(163, 189, 139, 0.86), rgba(125, 157, 109, 0.8));
-  filter: blur(0.1px);
+  background: linear-gradient(145deg, rgba(150, 184, 126, 0.94), rgba(108, 144, 90, 0.9));
+  box-shadow: 0 4px 10px rgba(133, 171, 114, 0.14);
+  filter: blur(0.05px);
   animation-name: leaves-drift;
 }
 
@@ -295,6 +308,20 @@ body[data-theme="dark"] .bg-celestial {
 
 body[data-theme="dark"] .bg-stars {
   opacity: 0.76;
+}
+
+body[data-theme="dark"] .bg-petals {
+  opacity: 0.42;
+}
+
+body[data-theme="dark"] .petal {
+  width: 18px;
+  height: 13px;
+  border-radius: 70% 30% 70% 30%;
+  background: linear-gradient(145deg, rgba(232, 238, 255, 0.72), rgba(145, 165, 203, 0.46));
+  box-shadow: 0 4px 10px rgba(109, 143, 196, 0.08);
+  filter: blur(0.08px);
+  animation-name: petals-drift;
 }
 
 body[data-theme="dark"] .bg-hills {
@@ -334,12 +361,12 @@ body[data-theme="midnight-orchid"] .bg-trees {
 }
 
 body[data-theme="midnight-orchid"] .bg-petals {
-  opacity: 0.94;
+  opacity: 1;
 }
 
 body[data-theme="midnight-orchid"] .petal {
-  width: 16px;
-  height: 11px;
+  width: 30px;
+  height: 20px;
   background: linear-gradient(145deg, rgba(255, 239, 246, 0.96), rgba(238, 184, 214, 0.86));
   animation-name: petals-drift;
 }
@@ -1160,7 +1187,14 @@ body[data-theme="midnight-orchid"] .brand-mark {
 }
 
 .hero-card-caption {
-  padding: 0.2rem 0.15rem 0;
+  width: 100%;
+  max-width: 100%;
+  padding: 1rem 1rem 1.05rem;
+  align-self: stretch;
+  border-radius: 1.15rem;
+  border: 1px solid color-mix(in srgb, var(--border) 86%, transparent);
+  background: color-mix(in srgb, var(--surface-strong) 94%, white);
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.06);
 }
 
 .metric-label {
@@ -1200,6 +1234,10 @@ body[data-theme="midnight-orchid"] .brand-mark {
   gap: var(--space-3);
 }
 
+.profile-card.is-text-only {
+  gap: 0;
+}
+
 .profile-visual {
   width: min(100%, 14rem);
   aspect-ratio: 1 / 1;
@@ -1208,6 +1246,10 @@ body[data-theme="midnight-orchid"] .brand-mark {
   border: 1px solid var(--border);
   background: var(--surface-strong);
   box-shadow: var(--card-shadow);
+}
+
+.profile-card.is-text-only .profile-visual {
+  display: none !important;
 }
 
 .profile-visual img {
