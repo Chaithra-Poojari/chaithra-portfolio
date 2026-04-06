@@ -2146,6 +2146,12 @@ body.modal-open {
 
 .contact-panel {
   padding: var(--space-4);
+  align-items: start;
+}
+
+.contact-copy,
+.contact-form {
+  align-self: start;
 }
 
 .contact-form {
