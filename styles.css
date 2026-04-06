@@ -2179,12 +2179,13 @@ body.modal-open {
 }
 
 .case-main {
-  padding-top: 3rem;
+  padding-top: 4rem;
 }
 
 .case-hero {
   display: grid;
   gap: var(--space-4);
+  padding-top: 0.75rem;
 }
 
 .case-hero h1 {
@@ -2251,6 +2252,37 @@ body.modal-open {
   border-radius: 1.15rem;
   padding: 1rem;
   background: color-mix(in srgb, var(--surface) 94%, white);
+}
+
+.case-empathy-card {
+  position: relative;
+  padding-top: 3.2rem;
+}
+
+.case-empathy-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.35rem;
+}
+
+.case-persona-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.case-persona-visual {
+  margin-bottom: 0.9rem;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.case-persona-visual img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
 }
 
 .case-empathy-card h3,

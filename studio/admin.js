@@ -110,6 +110,15 @@ const parseTags = (value) =>
     .map((tag) => tag.trim())
     .filter(Boolean);
 
+const createEmptyPersona = () => ({
+  name: "",
+  role: "",
+  summary: "",
+  goals: [],
+  frustrations: [],
+  image: ""
+});
+
 const readFileAsDataUrl = (file, options = {}) =>
   new Promise((resolve) => {
     if (!file) {
@@ -208,13 +217,8 @@ const createEmptyProjectDraft = (template = "") => ({
       pains: "",
       gains: ""
     },
-    persona: {
-      name: "",
-      role: "",
-      summary: "",
-      goals: [],
-      frustrations: []
-    },
+    persona: createEmptyPersona(),
+    personas: [createEmptyPersona()],
     designPrinciples: [],
     userJourneyImage: "",
     userFlowImage: "",
@@ -722,19 +726,47 @@ const projectStepMarkup = () => {
         </div>
       `;
     case 4:
+      if (!draft.caseStudy.personas?.length) {
+        draft.caseStudy.personas = [draft.caseStudy.persona || createEmptyPersona()];
+      }
       return `
-        <div class="wizard-grid">
-          <label>Name <input type="text" data-persona-field="name" value="${draft.caseStudy.persona.name}" /></label>
-          <label>Role <input type="text" data-persona-field="role" value="${draft.caseStudy.persona.role}" /></label>
-          <label class="wizard-grid-full">Summary
-            <textarea rows="4" data-persona-field="summary">${draft.caseStudy.persona.summary}</textarea>
-          </label>
-          <label>Goals
-            <textarea rows="6" data-persona-list="goals" placeholder="One goal per line">${draft.caseStudy.persona.goals.join("\n")}</textarea>
-          </label>
-          <label>Frustrations
-            <textarea rows="6" data-persona-list="frustrations" placeholder="One frustration per line">${draft.caseStudy.persona.frustrations.join("\n")}</textarea>
-          </label>
+        <div class="persona-editor-stack">
+          ${draft.caseStudy.personas
+            .map(
+              (persona, index) => `
+                <article class="persona-editor-card">
+                  <div class="section-topline">
+                    <div>
+                      <p class="admin-kicker">Persona ${index + 1}</p>
+                      <h3>${index === 0 ? "Primary Persona" : index === 1 ? "Secondary Persona" : "Additional Persona"}</h3>
+                    </div>
+                    ${index > 0 ? `<button class="admin-button" type="button" data-remove-persona-index="${index}">Remove Persona</button>` : ""}
+                  </div>
+                  <div class="wizard-grid">
+                    <label>Name <input type="text" data-persona-index="${index}" data-persona-field="name" value="${persona.name}" /></label>
+                    <label>Role <input type="text" data-persona-index="${index}" data-persona-field="role" value="${persona.role}" /></label>
+                    <label class="wizard-grid-full">Summary
+                      <textarea rows="4" data-persona-index="${index}" data-persona-field="summary">${persona.summary}</textarea>
+                    </label>
+                    <label>Goals
+                      <textarea rows="6" data-persona-index="${index}" data-persona-list="goals" placeholder="One goal per line">${persona.goals.join("\n")}</textarea>
+                    </label>
+                    <label>Frustrations
+                      <textarea rows="6" data-persona-index="${index}" data-persona-list="frustrations" placeholder="One frustration per line">${persona.frustrations.join("\n")}</textarea>
+                    </label>
+                    <label>Persona image
+                      <input type="file" data-persona-index="${index}" data-persona-upload="image" accept="image/*" />
+                    </label>
+                    <div class="upload-stage">
+                      ${persona.image ? `<img class="upload-preview" src="${persona.image}" alt="Persona ${index + 1} preview" />` : `<p class="admin-muted">Image is optional.</p>`}
+                      ${persona.image ? `<button class="admin-button" type="button" data-remove-persona-image="${index}">Remove image</button>` : ""}
+                    </div>
+                  </div>
+                </article>
+              `
+            )
+            .join("")}
+          ${draft.caseStudy.personas.length < 3 ? `<button class="admin-button admin-button-primary" type="button" data-add-persona>Add another persona</button>` : ""}
         </div>
       `;
     case 5:
@@ -854,16 +886,62 @@ const bindWizardInputs = () => {
 
   wizardStepContent.querySelectorAll("[data-persona-field]").forEach((input) => {
     input.addEventListener("input", () => {
-      currentProjectDraft.caseStudy.persona[input.dataset.personaField] = input.value.trim();
+      const personaIndex = Number(input.dataset.personaIndex || 0);
+      currentProjectDraft.caseStudy.personas[personaIndex][input.dataset.personaField] = input.value.trim();
+      currentProjectDraft.caseStudy.persona = currentProjectDraft.caseStudy.personas[0];
     });
   });
 
   wizardStepContent.querySelectorAll("[data-persona-list]").forEach((textarea) => {
     textarea.addEventListener("input", () => {
-      currentProjectDraft.caseStudy.persona[textarea.dataset.personaList] = textarea.value
+      const personaIndex = Number(textarea.dataset.personaIndex || 0);
+      currentProjectDraft.caseStudy.personas[personaIndex][textarea.dataset.personaList] = textarea.value
         .split("\n")
         .map((item) => item.trim())
         .filter(Boolean);
+      currentProjectDraft.caseStudy.persona = currentProjectDraft.caseStudy.personas[0];
+    });
+  });
+
+  wizardStepContent.querySelectorAll("[data-persona-upload]").forEach((input) => {
+    input.addEventListener("change", async () => {
+      const personaIndex = Number(input.dataset.personaIndex || 0);
+      const uploaded = await readFileAsDataUrl(input.files?.[0]);
+      if (!uploaded) {
+        return;
+      }
+      currentProjectDraft.caseStudy.personas[personaIndex].image = uploaded;
+      currentProjectDraft.caseStudy.persona = currentProjectDraft.caseStudy.personas[0];
+      renderProjectWizard();
+    });
+  });
+
+  wizardStepContent.querySelectorAll("[data-remove-persona-image]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const personaIndex = Number(button.dataset.removePersonaImage || 0);
+      currentProjectDraft.caseStudy.personas[personaIndex].image = "";
+      currentProjectDraft.caseStudy.persona = currentProjectDraft.caseStudy.personas[0];
+      renderProjectWizard();
+    });
+  });
+
+  wizardStepContent.querySelectorAll("[data-remove-persona-index]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const personaIndex = Number(button.dataset.removePersonaIndex || 0);
+      currentProjectDraft.caseStudy.personas.splice(personaIndex, 1);
+      currentProjectDraft.caseStudy.persona = currentProjectDraft.caseStudy.personas[0] || createEmptyPersona();
+      renderProjectWizard();
+    });
+  });
+
+  wizardStepContent.querySelectorAll("[data-add-persona]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (currentProjectDraft.caseStudy.personas.length >= 3) {
+        return;
+      }
+      currentProjectDraft.caseStudy.personas.push(createEmptyPersona());
+      currentProjectDraft.caseStudy.persona = currentProjectDraft.caseStudy.personas[0];
+      renderProjectWizard();
     });
   });
 
@@ -1536,6 +1614,14 @@ document.querySelectorAll("[data-command]").forEach((button) => {
     const editor = document.querySelector(`[data-editor="${button.dataset.editorTarget}"]`);
     if (!editor) return;
     editor.focus();
+    if (button.dataset.command === "link") {
+      const url = window.prompt("Enter link URL");
+      if (!url) {
+        return;
+      }
+      document.execCommand("createLink", false, url);
+      return;
+    }
     document.execCommand(button.dataset.command, false, null);
   });
 });
@@ -1967,7 +2053,7 @@ const saveProfileSection = async (submitter) => {
         document.getElementById("focus-three").value.trim()
       ]
         .filter(Boolean)
-        .map((title) => ({ title, description: "Editable focus area from studio." })),
+        .map((title) => ({ title, description: "" })),
       socials: [
         { label: "LinkedIn", url: document.getElementById("social-linkedin").value.trim() },
         { label: "Dribbble", url: document.getElementById("social-dribbble").value.trim() },

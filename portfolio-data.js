@@ -690,6 +690,37 @@ const ensureProjectStructure = (project) => {
   const template = project.template || "ai-saas";
   const coverImage = normalizeAssetPath(project.coverImage || project.thumbnail, "/assets/project-atlas.svg");
   const finalScreens = ensureArray(project.caseStudy?.finalScreens);
+  const fallbackPersona = project.caseStudy?.persona || {};
+  const personas = ensureArray(project.caseStudy?.personas).length
+    ? ensureArray(project.caseStudy?.personas)
+    : [
+        {
+          name: fallbackPersona.name || "",
+          role: fallbackPersona.role || "",
+          summary: fallbackPersona.summary || "",
+          goals: ensureArray(fallbackPersona.goals),
+          frustrations: ensureArray(fallbackPersona.frustrations),
+          image: normalizeAssetPath(fallbackPersona.image || "", "")
+        }
+      ];
+  const normalizedPersonas = personas
+    .filter((persona) => persona && (persona.name || persona.summary || persona.role || persona.image))
+    .map((persona) => ({
+      name: persona.name || "",
+      role: persona.role || "",
+      summary: persona.summary || "",
+      goals: ensureArray(persona.goals),
+      frustrations: ensureArray(persona.frustrations),
+      image: normalizeAssetPath(persona.image || "", "")
+    }));
+  const primaryPersona = normalizedPersonas[0] || {
+    name: "",
+    role: "",
+    summary: "",
+    goals: [],
+    frustrations: [],
+    image: ""
+  };
 
   return {
     ...project,
@@ -718,13 +749,8 @@ const ensureProjectStructure = (project) => {
         pains: project.caseStudy?.empathyMap?.pains || "",
         gains: project.caseStudy?.empathyMap?.gains || ""
       },
-      persona: {
-        name: project.caseStudy?.persona?.name || "",
-        role: project.caseStudy?.persona?.role || "",
-        summary: project.caseStudy?.persona?.summary || "",
-        goals: ensureArray(project.caseStudy?.persona?.goals),
-        frustrations: ensureArray(project.caseStudy?.persona?.frustrations)
-      },
+      persona: primaryPersona,
+      personas: normalizedPersonas,
       designPrinciples: ensureArray(project.caseStudy?.designPrinciples),
       userJourneyImage: normalizeAssetPath(project.caseStudy?.userJourneyImage || "", ""),
       userFlowImage: normalizeAssetPath(project.caseStudy?.userFlowImage || "", ""),

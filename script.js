@@ -31,6 +31,7 @@ const cvAccessForm = document.getElementById("cv-access-form");
 const cvEmailInput = document.getElementById("cv-email-input");
 const cvCompanyEmailInput = document.getElementById("cv-company-email-input");
 const cvAccessStatus = document.getElementById("cv-access-status");
+const cvSkipButton = document.getElementById("cv-skip-button");
 let footerClickTimer = null;
 let exclusiveUnlockTarget = "";
 let unlockedExclusiveProjects = [];
@@ -507,11 +508,33 @@ const renderFocusAreas = (items) => {
       (item) => `
         <div>
           <strong>${item.title}</strong>
-          <span>${item.description}</span>
+          ${item.description && item.description !== "Editable focus area from studio." ? `<span>${item.description}</span>` : ""}
         </div>
       `
     )
     .join("");
+};
+
+const empathyIcons = {
+  says: "💬",
+  thinks: "🧠",
+  does: "🛠️",
+  feels: "💗",
+  pains: "⚠️",
+  gains: "✨"
+};
+
+const getCasePersonas = (caseStudy) => {
+  const personas = Array.isArray(caseStudy.personas) ? caseStudy.personas.filter(Boolean) : [];
+  if (personas.length) {
+    return personas;
+  }
+
+  if (caseStudy.persona && (caseStudy.persona.name || caseStudy.persona.summary)) {
+    return [caseStudy.persona];
+  }
+
+  return [];
 };
 
 const renderSkills = (skills) => {
@@ -974,6 +997,7 @@ const renderCaseStudyPage = async () => {
           .map(
             ([key, value]) => `
               <article class="case-empathy-card">
+                <span class="case-empathy-icon">${empathyIcons[key] || "✦"}</span>
                 <h3>${key.charAt(0).toUpperCase() + key.slice(1)}</h3>
                 <p>${value || "—"}</p>
               </article>
@@ -984,26 +1008,36 @@ const renderCaseStudyPage = async () => {
     );
   }
 
-  if (caseStudy.persona && (caseStudy.persona.name || caseStudy.persona.summary)) {
+  const personas = getCasePersonas(caseStudy);
+  if (personas.length) {
     pushSection(
-      "User Persona",
-      `<article class="case-persona-card">
-        <h3>${caseStudy.persona.name || "Primary Persona"}</h3>
-        <p class="case-persona-role">${caseStudy.persona.role || ""}</p>
-        <p>${caseStudy.persona.summary || ""}</p>
-        ${
-          caseStudy.persona.goals?.length
-            ? `<h4>Goals</h4><ul>${caseStudy.persona.goals.map((item) => `<li>${item}</li>`).join("")}</ul>`
-            : ""
-        }
-        ${
-          caseStudy.persona.frustrations?.length
-            ? `<h4>Frustrations</h4><ul>${caseStudy.persona.frustrations
-                .map((item) => `<li>${item}</li>`)
-                .join("")}</ul>`
-            : ""
-        }
-      </article>`
+      personas.length > 1 ? "User Personas" : "User Persona",
+      `<div class="case-persona-grid">
+        ${personas
+          .map(
+            (persona, index) => `
+              <article class="case-persona-card">
+                ${persona.image ? `<div class="case-persona-visual"><img src="${persona.image}" alt="${persona.name || `Persona ${index + 1}`}" /></div>` : ""}
+                <h3>${persona.name || `${index === 0 ? "Primary" : index === 1 ? "Secondary" : "Additional"} Persona`}</h3>
+                <p class="case-persona-role">${persona.role || ""}</p>
+                <p>${persona.summary || ""}</p>
+                ${
+                  persona.goals?.length
+                    ? `<h4>Goals</h4><ul>${persona.goals.map((item) => `<li>${item}</li>`).join("")}</ul>`
+                    : ""
+                }
+                ${
+                  persona.frustrations?.length
+                    ? `<h4>Frustrations</h4><ul>${persona.frustrations
+                        .map((item) => `<li>${item}</li>`)
+                        .join("")}</ul>`
+                    : ""
+                }
+              </article>
+            `
+          )
+          .join("")}
+      </div>`
     );
   }
 
@@ -1359,6 +1393,16 @@ cvAccessForm?.addEventListener("submit", async (event) => {
 
   try {
     recordCvDownloadLead(email, companyName);
+    await downloadCvFile(data.profile);
+    closeCvModal();
+  } catch {
+    cvAccessStatus.textContent = "Could not download the CV right now. Please try again.";
+  }
+});
+
+cvSkipButton?.addEventListener("click", async () => {
+  try {
+    const data = window.getPortfolioData();
     await downloadCvFile(data.profile);
     closeCvModal();
   } catch {
