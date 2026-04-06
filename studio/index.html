@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link
@@ -106,7 +106,7 @@
               <p class="admin-muted">Create structured UX stories, publish writing, and keep your portfolio current.</p>
             </div>
             <div class="studio-header-actions">
-              <span class="admin-avatar">CP</span>
+              <span class="admin-avatar" id="admin-header-avatar">CP</span>
               <button class="admin-button" id="logout-button" type="button">Logout</button>
             </div>
           </header>
@@ -246,19 +246,6 @@
                 <button class="admin-button admin-button-primary" type="button" id="new-blog-button">New blog</button>
               </div>
               <div class="manager-list" id="blog-list-admin"></div>
-              <div class="admin-subsection">
-                <div class="section-topline">
-                  <div>
-                    <p class="admin-kicker">Blog Media</p>
-                    <h3>Blog Cover Images</h3>
-                  </div>
-                </div>
-                <div class="dashboard-media-list" id="blog-media-list"></div>
-                <div class="form-actions">
-                  <button class="admin-button admin-button-primary" type="button" id="save-blog-media-button">Save blog images</button>
-                  <p class="admin-status" id="blog-media-status"></p>
-                </div>
-              </div>
             </div>
           </section>
 
@@ -281,7 +268,7 @@
             <form class="admin-card admin-form-stack blog-editor blog-editor-shell" id="blog-form">
               <div class="project-editor-toolbar">
                 <button class="admin-button" type="button" id="blog-back-button">Back to blogs</button>
-                <p class="admin-muted">Write in a focused workspace, while cover images stay managed from the blog media section.</p>
+                <p class="admin-muted">Write in a focused workspace and manage the cover image right here while editing.</p>
               </div>
 
               <div class="project-editor-hero">
@@ -300,6 +287,18 @@
               <div class="field-grid">
                 <label>Date <input type="date" id="blog-date" required /></label>
                 <label>Tags <input type="text" id="blog-tags" placeholder="AI, Systems" /></label>
+              </div>
+              <div class="field-grid">
+                <label>
+                  Cover image
+                  <input type="file" id="blog-cover-image-input" accept="image/*" />
+                </label>
+                <div class="upload-stage">
+                  <div class="brand-icon-preview banner-preview" id="blog-cover-preview" aria-hidden="true">
+                    <span>No cover image</span>
+                  </div>
+                  <button class="admin-button" type="button" id="remove-blog-cover-button">Remove cover image</button>
+                </div>
               </div>
               <label class="inline-toggle">
                 <input type="checkbox" id="blog-featured" />
@@ -345,7 +344,7 @@
                 <label>Name <input type="text" id="profile-name" required /></label>
                 <label>First name <input type="text" id="profile-first-name" required /></label>
                 <label>Role <input type="text" id="profile-role" required /></label>
-                <label>Tagline <input type="text" id="profile-tagline" required /></label>
+                <label>Hero tagline <input type="text" id="profile-tagline" required /></label>
                 <label>About <textarea id="profile-about" rows="5"></textarea></label>
                 <label>Contact copy <textarea id="profile-contact-copy" rows="4"></textarea></label>
                 <div class="brand-icon-preview" id="profile-image-preview" aria-hidden="true"></div>
@@ -355,6 +354,20 @@
                   <button class="admin-button admin-button-primary" type="button" data-profile-save="identity" data-status-target="identity-status">Save identity</button>
                 </div>
                 <p class="admin-status" id="identity-status"></p>
+              </div>
+
+              <div class="admin-card admin-form-stack">
+                <p class="admin-kicker">Site Copy</p>
+                <h2>Section Titles</h2>
+                <label>About title <input type="text" id="content-about-title" /></label>
+                <label>Projects title <input type="text" id="content-projects-title" /></label>
+                <label>Experience title <input type="text" id="content-experience-title" /></label>
+                <label>Blogs title <input type="text" id="content-blogs-title" /></label>
+                <label>Contact title <input type="text" id="content-contact-title" /></label>
+                <div class="form-actions">
+                  <button class="admin-button admin-button-primary" type="button" data-profile-save="site-copy" data-status-target="site-copy-status">Save site copy</button>
+                </div>
+                <p class="admin-status" id="site-copy-status"></p>
               </div>
 
               <div class="admin-card admin-form-stack">
@@ -422,13 +435,10 @@
 
               <div class="admin-card admin-form-stack">
                 <p class="admin-kicker">Portfolio System</p>
-                <h2>Socials & Skills</h2>
+                <h2>Focus & Skills</h2>
                 <label>Focus area 1 <input type="text" id="focus-one" /></label>
                 <label>Focus area 2 <input type="text" id="focus-two" /></label>
                 <label>Focus area 3 <input type="text" id="focus-three" /></label>
-                <label>LinkedIn <input type="url" id="social-linkedin" /></label>
-                <label>Dribbble <input type="url" id="social-dribbble" /></label>
-                <label>GitHub <input type="url" id="social-github" /></label>
                 <label>UX skills <input type="text" id="skills-ux" /></label>
                 <label>UI skills <input type="text" id="skills-ui" /></label>
                 <label>Tools <input type="text" id="skills-tools" /></label>
@@ -437,6 +447,108 @@
                   <button class="admin-button admin-button-primary" type="button" data-profile-save="portfolio-system" data-status-target="portfolio-system-status">Save portfolio system</button>
                 </div>
                 <p class="admin-status" id="portfolio-system-status"></p>
+              </div>
+
+              <div class="admin-card admin-form-stack">
+                <p class="admin-kicker">Social Media</p>
+                <h2>Social Links</h2>
+                <div class="field-grid">
+                  <label>LinkedIn <input type="url" id="social-linkedin" /></label>
+                  <label class="toggle-field">Show LinkedIn <input type="checkbox" id="social-linkedin-visible" /></label>
+                </div>
+                <div class="field-grid">
+                  <label>Behance <input type="url" id="social-behance" /></label>
+                  <label class="toggle-field">Show Behance <input type="checkbox" id="social-behance-visible" /></label>
+                </div>
+                <div class="field-grid">
+                  <label>GitHub <input type="url" id="social-github" /></label>
+                  <label class="toggle-field">Show GitHub <input type="checkbox" id="social-github-visible" /></label>
+                </div>
+                <div class="field-grid">
+                  <label>Discord <input type="url" id="social-discord" /></label>
+                  <label class="toggle-field">Show Discord <input type="checkbox" id="social-discord-visible" /></label>
+                </div>
+                <div class="field-grid">
+                  <label>Twitter <input type="url" id="social-twitter" /></label>
+                  <label class="toggle-field">Show Twitter <input type="checkbox" id="social-twitter-visible" /></label>
+                </div>
+                <div class="field-grid">
+                  <label>Instagram <input type="url" id="social-instagram" /></label>
+                  <label class="toggle-field">Show Instagram <input type="checkbox" id="social-instagram-visible" /></label>
+                </div>
+                <div class="field-grid">
+                  <label>Dribbble <input type="url" id="social-dribbble" /></label>
+                  <label class="toggle-field">Show Dribbble <input type="checkbox" id="social-dribbble-visible" /></label>
+                </div>
+                <div class="form-actions">
+                  <button class="admin-button admin-button-primary" type="button" data-profile-save="social-media" data-status-target="social-media-status">Save social media</button>
+                </div>
+                <p class="admin-status" id="social-media-status"></p>
+              </div>
+
+              <div class="admin-card admin-form-stack">
+                <p class="admin-kicker">Appearance</p>
+                <h2>Theme & Typography</h2>
+                <label>
+                  Default theme
+                  <select id="default-theme-mode">
+                    <option value="system">Adapt to system / mobile default</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="midnight-orchid">Orchid</option>
+                  </select>
+                </label>
+                <label>
+                  Font family
+                  <select id="font-family-mode">
+                    <option value="standard">Standard</option>
+                    <option value="system">System UI</option>
+                    <option value="poppins">Poppins</option>
+                    <option value="manrope">Manrope</option>
+                    <option value="dm-sans">DM Sans</option>
+                    <option value="outfit">Outfit</option>
+                    <option value="serif">Serif</option>
+                  </select>
+                </label>
+                <label>
+                  Title font
+                  <select id="title-font-family-mode">
+                    <option value="standard">Standard</option>
+                    <option value="system">System UI</option>
+                    <option value="poppins">Poppins</option>
+                    <option value="manrope">Manrope</option>
+                    <option value="dm-sans">DM Sans</option>
+                    <option value="outfit">Outfit</option>
+                    <option value="serif">Serif</option>
+                  </select>
+                </label>
+                <div class="field-grid">
+                  <label>Letter spacing (em) <input type="number" id="letter-spacing-control" step="0.005" min="-0.05" max="0.12" /></label>
+                  <label>Word spacing (em) <input type="number" id="word-spacing-control" step="0.02" min="-0.2" max="0.8" /></label>
+                </div>
+                <div class="field-grid">
+                  <label>Line spacing <input type="number" id="line-height-control" step="0.05" min="1.2" max="2.2" /></label>
+                  <label>Title word spacing (em) <input type="number" id="title-word-spacing-control" step="0.02" min="-0.2" max="0.8" /></label>
+                </div>
+                <div class="field-grid">
+                  <label>Title letter spacing (em) <input type="number" id="title-letter-spacing-control" step="0.005" min="-0.12" max="0.08" /></label>
+                  <label>Title line spacing <input type="number" id="title-line-height-control" step="0.02" min="0.9" max="1.6" /></label>
+                </div>
+                <label>
+                  Title weight
+                  <select id="title-font-weight-mode">
+                    <option value="500">Medium</option>
+                    <option value="600">Semibold</option>
+                    <option value="700">Bold</option>
+                  </select>
+                </label>
+                <label>Paragraph spacing (rem) <input type="number" id="paragraph-spacing-control" step="0.05" min="0.4" max="2.2" /></label>
+                <p class="admin-muted">Standard values are used by default, but you can tune the site typography and default theme here.</p>
+                <div class="form-actions">
+                  <button class="admin-button" type="button" id="appearance-reset-button">Reset to defaults</button>
+                  <button class="admin-button admin-button-primary" type="button" data-profile-save="appearance" data-status-target="appearance-status">Save appearance</button>
+                </div>
+                <p class="admin-status" id="appearance-status"></p>
               </div>
 
               <div class="admin-card admin-form-stack">

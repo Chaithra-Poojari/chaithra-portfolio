@@ -4,7 +4,9 @@ const EXCLUSIVE_UNLOCKED_KEY = "cpw-exclusive-projects-unlocked";
 const EXCLUSIVE_PASSWORD_SESSION_KEY = "cpw-exclusive-project-password";
 const themeButtons = document.querySelectorAll("[data-theme-target]");
 const revealItems = document.querySelectorAll(".reveal");
+const initialPortfolioData = window.getPortfolioData?.() || {};
 const savedTheme = localStorage.getItem("portfolio-theme");
+const systemThemeQuery = window.matchMedia?.("(prefers-color-scheme: dark)");
 const contactForm = document.querySelector(".contact-form");
 const adminEntry = document.querySelector("[data-admin-entry]");
 const adminLogo = document.querySelector("[data-admin-logo]");
@@ -54,8 +56,27 @@ const buildDefaultBrandMark = (gradientId) => `
   </svg>
 `;
 
+const getSystemTheme = () => (systemThemeQuery?.matches ? "dark" : "light");
+const getConfiguredTheme = () => {
+  const themeMode = initialPortfolioData.settings?.appearance?.themeMode || "system";
+  return themeMode === "system" ? getSystemTheme() : themeMode;
+};
+
+const syncConfiguredTheme = (settings = window.getPortfolioData?.().settings) => {
+  if (localStorage.getItem("portfolio-theme")) {
+    return;
+  }
+
+  const themeMode = settings?.appearance?.themeMode || "system";
+  document.body.dataset.theme = themeMode === "system" ? getSystemTheme() : themeMode;
+  syncThemeButtons();
+  updateFavicon();
+};
+
 if (savedTheme) {
   document.body.dataset.theme = savedTheme;
+} else {
+  document.body.dataset.theme = getConfiguredTheme();
 }
 
 const syncThemeButtons = () => {
@@ -118,6 +139,40 @@ const updateFavicon = () => {
   `.trim();
 
   faviconLink.href = `data:image/svg+xml,${encodeURIComponent(svg)}`;
+};
+
+const applyAppearanceSettings = (settings = {}) => {
+  const appearance = settings.appearance || {};
+  const root = document.documentElement;
+  const fontMap = {
+    standard: '"Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif',
+    system: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    poppins: '"Poppins", "Inter", "Segoe UI", sans-serif',
+    manrope: '"Manrope", "Inter", "Segoe UI", sans-serif',
+    "dm-sans": '"DM Sans", "Inter", "Segoe UI", sans-serif',
+    outfit: '"Outfit", "Inter", "Segoe UI", sans-serif',
+    serif: '"Georgia", "Times New Roman", serif'
+  };
+
+  root.style.setProperty("--font-sans", fontMap[appearance.fontFamily] || fontMap.standard);
+  root.style.setProperty("--font-display", fontMap[appearance.titleFontFamily] || fontMap.standard);
+  root.style.setProperty("--heading-font-weight", String(appearance.titleFontWeight || 600));
+  root.style.setProperty("--body-letter-spacing", `${Number(appearance.letterSpacing ?? 0)}em`);
+  root.style.setProperty("--body-word-spacing", `${Number(appearance.wordSpacing ?? 0)}em`);
+  root.style.setProperty(
+    "--heading-letter-spacing",
+    `${Number(appearance.titleLetterSpacing ?? -0.05)}em`
+  );
+  root.style.setProperty(
+    "--heading-word-spacing",
+    `${Number(appearance.titleWordSpacing ?? 0)}em`
+  );
+  root.style.setProperty(
+    "--heading-line-height",
+    String(appearance.titleLineHeight || 1.08)
+  );
+  root.style.setProperty("--body-line-height", String(appearance.lineHeight || 1.6));
+  root.style.setProperty("--paragraph-spacing", `${Number(appearance.paragraphSpacing ?? 1)}rem`);
 };
 
 const applyBrandSettings = (profile) => {
@@ -192,7 +247,11 @@ const isExclusiveUnlocked = () =>
 
 const buildPublicProjectCardMarkup = (project, className = "") => `
   <a class="${`project-card reveal ${className}`.trim()}" href="/projects/case-study.html?id=${project.id}">
-    <img src="${project.thumbnail}" alt="${project.title} thumbnail" class="project-thumb" />
+    ${
+      project.thumbnail
+        ? `<img src="${project.thumbnail}" alt="${project.title} thumbnail" class="project-thumb" />`
+        : `<div class="project-thumb project-thumb-empty" aria-hidden="true"><span>No image</span></div>`
+    }
     <div class="project-body">
       <div class="project-topline">
         <h3>${project.title}</h3>
@@ -503,7 +562,7 @@ const renderFocusAreas = (items) => {
     return;
   }
 
-  focusList.innerHTML = items
+  focusList.innerHTML = (Array.isArray(items) ? items : [])
     .map(
       (item) => `
         <div>
@@ -543,12 +602,12 @@ const renderSkills = (skills) => {
     return;
   }
 
-  skillsGrid.innerHTML = skills
+  skillsGrid.innerHTML = (Array.isArray(skills) ? skills : [])
     .map(
       (skill) => `
         <article class="skill-card glass-card reveal">
           <h3>${skill.group}</h3>
-          <p>${skill.items.join(", ")}</p>
+          <p>${Array.isArray(skill.items) ? skill.items.join(", ") : ""}</p>
         </article>
       `
     )
@@ -561,7 +620,9 @@ const renderProjects = (projects) => {
     return;
   }
 
-  projectsGrid.innerHTML = projects.map((project) => buildPublicProjectCardMarkup(project)).join("");
+  projectsGrid.innerHTML = (Array.isArray(projects) ? projects : [])
+    .map((project) => buildPublicProjectCardMarkup(project))
+    .join("");
 };
 
 const renderExclusiveProjects = async (data) => {
@@ -625,12 +686,22 @@ const renderExperience = (experience) => {
     return;
   }
 
-  const count = experience.length;
+  const safeExperience = Array.isArray(experience) ? experience : [];
+  if (!safeExperience.length) {
+    experienceList.innerHTML = `
+      <div class="glass-card reveal">
+        <p class="journey-node-description">Experience will appear here once it is added from the studio.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const count = safeExperience.length;
   const viewWidth = 1000;
   const viewHeight = Math.max(900, count * 270 + 200);
   const startX = 340;
   const endX = 660;
-  const points = experience.map((_, index) => ({
+  const points = safeExperience.map((_, index) => ({
     x: index % 2 === 0 ? startX : endX,
     y: 120 + index * 250
   }));
@@ -742,11 +813,15 @@ const renderExperience = (experience) => {
       </svg>
     </div>
     <div class="journey-nodes" data-journey-height="${viewHeight}" style="min-height: ${viewHeight}px;">
-      ${experience
+      ${safeExperience
         .map((item, index) => {
           const point = points[index];
           const side = index % 2 === 0 ? "left" : "right";
           const iconMarkup = journeyIcons[index % journeyIcons.length];
+          const logoMarkup = item.logo
+            ? `<img src="${item.logo}" alt="${item.company || "Company"} logo" />`
+            : iconMarkup;
+          const highlights = Array.isArray(item.highlights) ? item.highlights : [];
           return `
             <article
               class="journey-node journey-node-${side}"
@@ -755,14 +830,14 @@ const renderExperience = (experience) => {
             >
               <div class="journey-node-card">
                 <div class="journey-node-header">
-                  <span class="journey-company-logo" aria-hidden="true">${iconMarkup}</span>
+                  <span class="journey-company-logo" aria-hidden="true">${logoMarkup}</span>
                   <div>
-                    <h3>${item.role}</h3>
-                    <p class="journey-node-meta">${item.company}</p>
+                    <h3>${item.role || "Role"}</h3>
+                    <p class="journey-node-meta">${item.company || "Company"}</p>
                   </div>
                 </div>
-                <p class="journey-node-duration">${item.duration}</p>
-                <p class="journey-node-description">${item.highlights[0]}</p>
+                <p class="journey-node-duration">${item.duration || ""}</p>
+                <p class="journey-node-description">${highlights[0] || item.summary || ""}</p>
               </div>
             </article>
           `;
@@ -778,7 +853,9 @@ const renderBlogs = (blogs) => {
     return;
   }
 
-  const sortedBlogs = [...blogs].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sortedBlogs = [...(Array.isArray(blogs) ? blogs : [])].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
   blogList.innerHTML = sortedBlogs
     .map(
       (blog, index) => `
@@ -805,19 +882,60 @@ const renderBlogs = (blogs) => {
 
 const renderSocials = (socials) => {
   const socialLinks = document.getElementById("social-links");
-  const markup = socials
-    .map(
-      (social) => `
-        <a href="${social.url}" target="_blank" rel="noreferrer">${social.label}</a>
-      `
-    )
-    .join("");
-
   if (!socialLinks) {
     return;
   }
 
+  const normalizeExternalUrl = (value) => {
+    const raw = String(value || "").trim();
+    if (!raw) {
+      return "";
+    }
+
+    if (/^(https?:)?\/\//i.test(raw) || raw.startsWith("mailto:") || raw.startsWith("tel:")) {
+      return raw.startsWith("//") ? `https:${raw}` : raw;
+    }
+
+    return `https://${raw.replace(/^\/+/, "")}`;
+  };
+
+  const iconMap = {
+    linkedin: "/assets/linkdin.svg",
+    behance: "/assets/behance.svg",
+    github: "/assets/git.svg",
+    discord: "/assets/discord.svg",
+    twitter: "/assets/twitter.svg",
+    instagram: "/assets/instagram.svg",
+    dribbble: "/assets/dribble.svg"
+  };
+
+  const normalizedLinks = (Array.isArray(socials) ? socials : [])
+    .filter((social) => social?.url?.trim() && social?.visible !== false)
+    .map((social) => {
+      const key = String(social.key || social.label || "").toLowerCase();
+      return {
+        ...social,
+        url: normalizeExternalUrl(social.url),
+        key,
+        icon: iconMap[key] || iconMap.github
+      };
+    });
+
+  const markup = normalizedLinks
+    .map(
+      (social) => `
+        <a class="social-link-chip social-link-chip-${social.key}" href="${social.url}" target="_blank" rel="noreferrer" aria-label="${social.label}">
+          <span class="social-link-icon" aria-hidden="true">
+            <img src="${social.icon}" alt="" />
+          </span>
+          <span class="social-link-label">${social.label}</span>
+        </a>
+      `
+    )
+    .join("");
+
   socialLinks.innerHTML = markup;
+  socialLinks.hidden = !normalizedLinks.length;
 };
 
 const renderPortfolioPage = async () => {
@@ -828,10 +946,25 @@ const renderPortfolioPage = async () => {
   const data = window.getPortfolioData();
 
   document.title = `${data.profile.name} | ${data.profile.role}`;
+  applyAppearanceSettings(data.settings);
+  syncConfiguredTheme(data.settings);
   applyBrandSettings(data.profile);
   document.getElementById("hero-name").textContent = data.profile.name;
   document.getElementById("hero-role").textContent = data.profile.role;
   document.getElementById("hero-tagline").textContent = data.profile.tagline;
+  document.getElementById("about-section-title").textContent =
+    data.settings?.siteContent?.aboutTitle || "Thoughtful design grounded in systems and detail.";
+  document.getElementById("projects-section-title").textContent =
+    data.settings?.siteContent?.projectsTitle ||
+    "Selected work across health, AI, and product infrastructure.";
+  document.getElementById("experience-section-title").textContent =
+    data.settings?.siteContent?.experienceTitle ||
+    "Designing with product teams from concept to scale.";
+  document.getElementById("blogs-section-title").textContent =
+    data.settings?.siteContent?.blogsTitle ||
+    "Writing on design clarity, systems, and the shape of AI products.";
+  document.getElementById("contact-section-title").textContent =
+    data.settings?.siteContent?.contactTitle || "Let’s design something thoughtful together.";
   document.getElementById("about-heading").textContent = `Hi, I'm ${data.profile.firstName}.`;
   document.getElementById("about-intro").textContent = data.profile.about;
   document.getElementById("contact-copy").textContent = data.profile.contactCopy;
@@ -896,6 +1029,8 @@ const renderCaseStudyPage = async () => {
   const params = new URLSearchParams(window.location.search);
   const projectId = params.get("id");
   const data = window.getPortfolioData();
+  applyAppearanceSettings(data.settings);
+  syncConfiguredTheme(data.settings);
   const publicProject = data.projects.find((item) => item.id === projectId);
   const exclusivePreview = (data.exclusiveProjects || []).find((item) => item.id === projectId);
   let project = publicProject || data.projects[0];
@@ -918,8 +1053,14 @@ const renderCaseStudyPage = async () => {
       document.body.dataset.caseTemplate = exclusivePreview.template || "ai-saas";
       document.getElementById("case-title").textContent = exclusivePreview.title;
       document.getElementById("case-intro").textContent = exclusivePreview.summary;
-      document.getElementById("case-image").src = exclusivePreview.thumbnail;
-      document.getElementById("case-image").alt = `${exclusivePreview.title} preview`;
+      const exclusiveCaseImage = document.getElementById("case-image");
+      const exclusiveCaseCover = exclusiveCaseImage?.closest(".case-cover");
+      if (exclusiveCaseImage && exclusiveCaseCover) {
+        const hasExclusiveImage = Boolean(exclusivePreview.thumbnail);
+        exclusiveCaseImage.src = hasExclusiveImage ? exclusivePreview.thumbnail : "";
+        exclusiveCaseImage.alt = hasExclusiveImage ? `${exclusivePreview.title} preview` : "";
+        exclusiveCaseCover.hidden = !hasExclusiveImage;
+      }
       document.getElementById("case-role").textContent = "Confidential";
       document.getElementById("case-scope").textContent = "Password protected";
       document.getElementById("case-timeline").textContent = "Shared on request";
@@ -958,9 +1099,15 @@ const renderCaseStudyPage = async () => {
   document.getElementById("case-title").textContent = project.title;
   document.getElementById("case-intro").textContent =
     project.caseStudy?.overview?.summary || project.description;
-  document.getElementById("case-image").src =
-    project.caseStudy?.overview?.coverImage || project.coverImage || project.thumbnail;
-  document.getElementById("case-image").alt = `${project.title} cover`;
+  const caseImage = document.getElementById("case-image");
+  const caseCover = caseImage?.closest(".case-cover");
+  if (caseImage && caseCover) {
+    const coverImage =
+      project.caseStudy?.overview?.coverImage || project.coverImage || project.thumbnail || "";
+    caseImage.src = coverImage;
+    caseImage.alt = coverImage ? `${project.title} cover` : "";
+    caseCover.hidden = !coverImage;
+  }
   document.getElementById("case-role").textContent = project.role;
   document.getElementById("case-scope").textContent = project.scope;
   document.getElementById("case-timeline").textContent = project.timeline;
@@ -1093,6 +1240,8 @@ const renderBlogPostPage = () => {
   const params = new URLSearchParams(window.location.search);
   const blogId = params.get("id");
   const data = window.getPortfolioData();
+  applyAppearanceSettings(data.settings);
+  syncConfiguredTheme(data.settings);
   const blog = data.blogs.find((item) => item.id === blogId) || data.blogs[0];
 
   document.title = `${blog.title} | ${data.profile.name}`;
@@ -1297,6 +1446,29 @@ themeButtons.forEach((button) => {
     updateFavicon();
   });
 });
+
+if (systemThemeQuery && !savedTheme) {
+  const syncSystemTheme = (event) => {
+    if (localStorage.getItem("portfolio-theme")) {
+      return;
+    }
+
+    const latestThemeMode = window.getPortfolioData?.().settings?.appearance?.themeMode || "system";
+    if (latestThemeMode !== "system") {
+      return;
+    }
+
+    document.body.dataset.theme = event.matches ? "dark" : "light";
+    syncThemeButtons();
+    updateFavicon();
+  };
+
+  if (typeof systemThemeQuery.addEventListener === "function") {
+    systemThemeQuery.addEventListener("change", syncSystemTheme);
+  } else if (typeof systemThemeQuery.addListener === "function") {
+    systemThemeQuery.addListener(syncSystemTheme);
+  }
+}
 
 document.querySelectorAll("a").forEach((link) => {
   link.addEventListener("click", (event) => {
@@ -1543,17 +1715,22 @@ syncThemeButtons();
 updateFavicon();
 
 const initPage = async () => {
-  await renderPortfolioPage();
-  await renderCaseStudyPage();
-  renderBlogPostPage();
-  document.body.classList.add("page-enter");
-  refreshRevealObserver();
-  initJourneyAnimation();
-  initHeroParallax();
-  initActiveNav();
-  initSceneSections();
-  initGlobalBackground();
-  initScrollChrome();
+  try {
+    await renderPortfolioPage();
+    await renderCaseStudyPage();
+    renderBlogPostPage();
+    refreshRevealObserver();
+    initJourneyAnimation();
+    initHeroParallax();
+    initActiveNav();
+    initSceneSections();
+    initGlobalBackground();
+    initScrollChrome();
+  } catch (error) {
+    console.error("Portfolio page initialization failed:", error);
+  } finally {
+    document.body.classList.add("page-enter");
+  }
 };
 
 initPage();

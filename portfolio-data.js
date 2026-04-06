@@ -105,7 +105,7 @@ const defaultPortfolioData = {
     ],
     socials: [
       { label: "LinkedIn", url: "https://www.linkedin.com" },
-      { label: "Dribbble", url: "https://dribbble.com" },
+      { label: "Behance", url: "https://behance.net" },
       { label: "GitHub", url: "https://github.com" }
     ]
   },
@@ -114,6 +114,26 @@ const defaultPortfolioData = {
       passwordHash: DEFAULT_EXCLUSIVE_PASSWORD_HASH,
       passwordSalt: DEFAULT_EXCLUSIVE_PASSWORD_SALT,
       hint: "Enter password from my CV."
+    },
+    appearance: {
+      themeMode: "system",
+      fontFamily: "standard",
+      titleFontFamily: "standard",
+      titleFontWeight: "600",
+      letterSpacing: "0",
+      wordSpacing: "0",
+      titleLetterSpacing: "-0.05",
+      titleWordSpacing: "0",
+      titleLineHeight: "1.08",
+      lineHeight: "1.6",
+      paragraphSpacing: "1"
+    },
+    siteContent: {
+      aboutTitle: "Thoughtful design grounded in systems and detail.",
+      projectsTitle: "Selected work across health, AI, and product infrastructure.",
+      experienceTitle: "Designing with product teams from concept to scale.",
+      blogsTitle: "Writing on design clarity, systems, and the shape of AI products.",
+      contactTitle: "Let’s design something thoughtful together."
     }
   },
   cvDownloads: [],
@@ -418,6 +438,7 @@ const defaultPortfolioData = {
       id: "nexa",
       role: "Senior Product Designer",
       company: "Nexa Health",
+      logo: "",
       duration: "2023 - Present",
       highlights: [
         "Led end-to-end redesign of patient and provider operations flows.",
@@ -429,6 +450,7 @@ const defaultPortfolioData = {
       id: "northstar",
       role: "Product Designer",
       company: "Northstar Labs",
+      logo: "",
       duration: "2020 - 2023",
       highlights: [
         "Designed AI and analytics interfaces for enterprise research teams.",
@@ -440,6 +462,7 @@ const defaultPortfolioData = {
       id: "studio-common",
       role: "Visual & UX Designer",
       company: "Studio Common",
+      logo: "",
       duration: "2017 - 2020",
       highlights: [
         "Crafted responsive product marketing and SaaS interfaces for startups.",
@@ -773,6 +796,37 @@ const ensureBlogStructure = (blog) => ({
   content: blog.content || "<p></p>"
 });
 
+const ensureExperienceStructure = (item) => ({
+  ...item,
+  logo: normalizeAssetPath(item?.logo || "", ""),
+  highlights: ensureArray(item?.highlights)
+});
+
+const DEFAULT_SOCIALS = [
+  { key: "linkedin", label: "LinkedIn", url: "https://www.linkedin.com", visible: true },
+  { key: "behance", label: "Behance", url: "https://behance.net", visible: true },
+  { key: "github", label: "GitHub", url: "https://github.com", visible: true },
+  { key: "discord", label: "Discord", url: "", visible: false },
+  { key: "twitter", label: "Twitter", url: "", visible: false },
+  { key: "instagram", label: "Instagram", url: "", visible: false },
+  { key: "dribbble", label: "Dribbble", url: "", visible: false }
+];
+
+const normalizeSocials = (socials = []) =>
+  DEFAULT_SOCIALS.map((defaultSocial) => {
+    const existingSocial = ensureArray(socials).find((item) => {
+      const itemKey = String(item?.key || item?.label || "").toLowerCase();
+      return itemKey === defaultSocial.key || itemKey === defaultSocial.label.toLowerCase();
+    });
+
+    return {
+      key: defaultSocial.key,
+      label: defaultSocial.label,
+      url: existingSocial?.url || defaultSocial.url,
+      visible: typeof existingSocial?.visible === "boolean" ? existingSocial.visible : defaultSocial.visible
+    };
+  });
+
 window.formatPortfolioDate = (value) =>
   new Date(`${value}T00:00:00`).toLocaleDateString("en-US", {
     month: "short",
@@ -812,18 +866,49 @@ window.getPortfolioData = () => {
       accentEnd: base.profile.brand?.accentEnd || "#5A8BFF",
       accentDot: base.profile.brand?.accentDot || "#7b72ed"
     };
+    base.profile.socials = normalizeSocials(base.profile.socials);
     base.settings = {
       exclusiveAccess: {
         passwordHash: base.settings?.exclusiveAccess?.passwordHash || DEFAULT_EXCLUSIVE_PASSWORD_HASH,
         passwordSalt: base.settings?.exclusiveAccess?.passwordSalt || DEFAULT_EXCLUSIVE_PASSWORD_SALT,
         hint: base.settings?.exclusiveAccess?.hint || "Enter password from my CV."
+      },
+      appearance: {
+        themeMode: base.settings?.appearance?.themeMode || "system",
+        fontFamily: base.settings?.appearance?.fontFamily || "standard",
+        titleFontFamily: base.settings?.appearance?.titleFontFamily || "standard",
+        titleFontWeight: String(base.settings?.appearance?.titleFontWeight ?? "600"),
+        letterSpacing: String(base.settings?.appearance?.letterSpacing ?? "0"),
+        wordSpacing: String(base.settings?.appearance?.wordSpacing ?? "0"),
+        titleLetterSpacing: String(base.settings?.appearance?.titleLetterSpacing ?? "-0.05"),
+        titleWordSpacing: String(base.settings?.appearance?.titleWordSpacing ?? "0"),
+        titleLineHeight: String(base.settings?.appearance?.titleLineHeight ?? "1.08"),
+        lineHeight: String(base.settings?.appearance?.lineHeight ?? "1.6"),
+        paragraphSpacing: String(base.settings?.appearance?.paragraphSpacing ?? "1")
+      },
+      siteContent: {
+        aboutTitle:
+          base.settings?.siteContent?.aboutTitle ||
+          defaultPortfolioData.settings.siteContent.aboutTitle,
+        projectsTitle:
+          base.settings?.siteContent?.projectsTitle ||
+          defaultPortfolioData.settings.siteContent.projectsTitle,
+        experienceTitle:
+          base.settings?.siteContent?.experienceTitle ||
+          defaultPortfolioData.settings.siteContent.experienceTitle,
+        blogsTitle:
+          base.settings?.siteContent?.blogsTitle ||
+          defaultPortfolioData.settings.siteContent.blogsTitle,
+        contactTitle:
+          base.settings?.siteContent?.contactTitle ||
+          defaultPortfolioData.settings.siteContent.contactTitle
       }
     };
     base.cvDownloads = ensureArray(base.cvDownloads);
     base.projects = ensureArray(base.projects).map(ensureProjectStructure);
     base.exclusiveProjects = sanitizeExclusiveProjects(base.exclusiveProjects);
     base.blogs = ensureArray(base.blogs).map(ensureBlogStructure);
-    base.experience = ensureArray(base.experience);
+    base.experience = ensureArray(base.experience).map(ensureExperienceStructure);
     return base;
   } catch {
     const fallback = deepClone(defaultPortfolioData);
@@ -854,17 +939,49 @@ window.getPortfolioData = () => {
       accentEnd: fallback.profile.brand?.accentEnd || "#5A8BFF",
       accentDot: fallback.profile.brand?.accentDot || "#7b72ed"
     };
+    fallback.profile.socials = normalizeSocials(fallback.profile.socials);
     fallback.settings = {
       exclusiveAccess: {
         passwordHash: fallback.settings?.exclusiveAccess?.passwordHash || DEFAULT_EXCLUSIVE_PASSWORD_HASH,
         passwordSalt: fallback.settings?.exclusiveAccess?.passwordSalt || DEFAULT_EXCLUSIVE_PASSWORD_SALT,
         hint: fallback.settings?.exclusiveAccess?.hint || "Enter password from my CV."
+      },
+      appearance: {
+        themeMode: fallback.settings?.appearance?.themeMode || "system",
+        fontFamily: fallback.settings?.appearance?.fontFamily || "standard",
+        titleFontFamily: fallback.settings?.appearance?.titleFontFamily || "standard",
+        titleFontWeight: String(fallback.settings?.appearance?.titleFontWeight ?? "600"),
+        letterSpacing: String(fallback.settings?.appearance?.letterSpacing ?? "0"),
+        wordSpacing: String(fallback.settings?.appearance?.wordSpacing ?? "0"),
+        titleLetterSpacing: String(fallback.settings?.appearance?.titleLetterSpacing ?? "-0.05"),
+        titleWordSpacing: String(fallback.settings?.appearance?.titleWordSpacing ?? "0"),
+        titleLineHeight: String(fallback.settings?.appearance?.titleLineHeight ?? "1.08"),
+        lineHeight: String(fallback.settings?.appearance?.lineHeight ?? "1.6"),
+        paragraphSpacing: String(fallback.settings?.appearance?.paragraphSpacing ?? "1")
+      },
+      siteContent: {
+        aboutTitle:
+          fallback.settings?.siteContent?.aboutTitle ||
+          defaultPortfolioData.settings.siteContent.aboutTitle,
+        projectsTitle:
+          fallback.settings?.siteContent?.projectsTitle ||
+          defaultPortfolioData.settings.siteContent.projectsTitle,
+        experienceTitle:
+          fallback.settings?.siteContent?.experienceTitle ||
+          defaultPortfolioData.settings.siteContent.experienceTitle,
+        blogsTitle:
+          fallback.settings?.siteContent?.blogsTitle ||
+          defaultPortfolioData.settings.siteContent.blogsTitle,
+        contactTitle:
+          fallback.settings?.siteContent?.contactTitle ||
+          defaultPortfolioData.settings.siteContent.contactTitle
       }
     };
     fallback.cvDownloads = ensureArray(fallback.cvDownloads);
     fallback.projects = fallback.projects.map(ensureProjectStructure);
     fallback.exclusiveProjects = sanitizeExclusiveProjects(fallback.exclusiveProjects);
     fallback.blogs = fallback.blogs.map(ensureBlogStructure);
+    fallback.experience = ensureArray(fallback.experience).map(ensureExperienceStructure);
     return fallback;
   }
 };

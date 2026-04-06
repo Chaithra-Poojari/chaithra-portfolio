@@ -46,7 +46,11 @@ const saveProjectMediaButton = document.getElementById("save-project-media-butto
 const saveBlogMediaButton = document.getElementById("save-blog-media-button");
 const projectMediaStatus = document.getElementById("project-media-status");
 const blogMediaStatus = document.getElementById("blog-media-status");
+const blogCoverImageInput = document.getElementById("blog-cover-image-input");
+const blogCoverPreview = document.getElementById("blog-cover-preview");
+const removeBlogCoverButton = document.getElementById("remove-blog-cover-button");
 const removeProfileImageButton = document.getElementById("remove-profile-image-button");
+const adminHeaderAvatar = document.getElementById("admin-header-avatar");
 const exclusiveProjectList = document.getElementById("exclusive-project-list");
 const cvDownloadList = document.getElementById("cv-download-list");
 const newExclusiveProjectButton = document.getElementById("new-exclusive-project-button");
@@ -63,6 +67,8 @@ let currentProjectStep = 0;
 let currentProjectMode = "public";
 let pendingProjectMedia = {};
 let pendingBlogMedia = {};
+let pendingBlogEditorCoverImage = "";
+let removeBlogCoverOnSave = false;
 let pendingProfileUploads = {
   profileImage: "",
   bannerImage: "",
@@ -266,6 +272,19 @@ const getExclusivePasswordInputValue = () =>
 
 const uniquePasswords = (...values) => [...new Set(values.map((value) => String(value || "").trim()).filter(Boolean))];
 
+const normalizeExternalUrl = (value) => {
+  const raw = String(value || "").trim();
+  if (!raw) {
+    return "";
+  }
+
+  if (/^(https?:)?\/\//i.test(raw) || raw.startsWith("mailto:") || raw.startsWith("tel:")) {
+    return raw.startsWith("//") ? `https:${raw}` : raw;
+  }
+
+  return `https://${raw.replace(/^\/+/, "")}`;
+};
+
 const decryptExclusiveWithFallbacks = async (project, ...candidatePasswords) => {
   const passwords = uniquePasswords(...candidatePasswords, DEFAULT_EXCLUSIVE_PASSWORD);
   for (const password of passwords) {
@@ -329,6 +348,8 @@ const renderStudioBrand = () => {
   const brandCaption = document.querySelector(".studio-brand .brand-caption");
   const brandIconPreview = document.getElementById("brand-icon-preview");
   const faviconPreview = document.getElementById("favicon-preview");
+  const profileImage =
+    removeProfileImageOnSave ? "" : pendingProfileUploads.profileImage || portfolioData.profile?.image || "";
 
   if (brandName) {
     brandName.textContent = brandSettings.displayName;
@@ -342,6 +363,14 @@ const renderStudioBrand = () => {
     brandMark.innerHTML = brandSettings.iconImage
       ? `<img class="brand-mark-image" src="${brandSettings.iconImage}" alt="" />`
       : buildDefaultBrandMark();
+  }
+
+  if (adminHeaderAvatar) {
+    adminHeaderAvatar.innerHTML = profileImage
+      ? `<img class="admin-avatar-image" src="${profileImage}" alt="" />`
+      : brandSettings.iconImage
+        ? `<img class="admin-avatar-image" src="${brandSettings.iconImage}" alt="" />`
+        : buildDefaultBrandMark();
   }
 
   if (brandIconPreview) {
@@ -411,6 +440,71 @@ const updateImagePreview = (elementId, image, emptyLabel = "No image") => {
     ? `<img class="brand-mark-image" src="${image}" alt="" />`
     : `<span>${emptyLabel}</span>`;
 };
+
+const getAppearanceSettings = () => ({
+  themeMode: portfolioData.settings?.appearance?.themeMode || "system",
+  fontFamily: portfolioData.settings?.appearance?.fontFamily || "standard",
+  titleFontFamily: portfolioData.settings?.appearance?.titleFontFamily || "standard",
+  titleFontWeight: String(portfolioData.settings?.appearance?.titleFontWeight ?? "600"),
+  letterSpacing: String(portfolioData.settings?.appearance?.letterSpacing ?? "0"),
+  wordSpacing: String(portfolioData.settings?.appearance?.wordSpacing ?? "0"),
+  titleLetterSpacing: String(portfolioData.settings?.appearance?.titleLetterSpacing ?? "-0.05"),
+  titleWordSpacing: String(portfolioData.settings?.appearance?.titleWordSpacing ?? "0"),
+  titleLineHeight: String(portfolioData.settings?.appearance?.titleLineHeight ?? "1.08"),
+  lineHeight: String(portfolioData.settings?.appearance?.lineHeight ?? "1.6"),
+  paragraphSpacing: String(portfolioData.settings?.appearance?.paragraphSpacing ?? "1")
+});
+
+const DEFAULT_APPEARANCE_SETTINGS = {
+  themeMode: "system",
+  fontFamily: "standard",
+  titleFontFamily: "standard",
+  titleFontWeight: "600",
+  letterSpacing: "0",
+  wordSpacing: "0",
+  titleLetterSpacing: "-0.05",
+  titleWordSpacing: "0",
+  titleLineHeight: "1.08",
+  lineHeight: "1.6",
+  paragraphSpacing: "1"
+};
+
+const applyAppearanceValuesToForm = (appearance = DEFAULT_APPEARANCE_SETTINGS) => {
+  document.getElementById("default-theme-mode").value = appearance.themeMode;
+  document.getElementById("font-family-mode").value = appearance.fontFamily;
+  document.getElementById("title-font-family-mode").value = appearance.titleFontFamily;
+  document.getElementById("title-font-weight-mode").value = appearance.titleFontWeight;
+  document.getElementById("letter-spacing-control").value = appearance.letterSpacing;
+  document.getElementById("word-spacing-control").value = appearance.wordSpacing;
+  document.getElementById("title-letter-spacing-control").value = appearance.titleLetterSpacing;
+  document.getElementById("title-word-spacing-control").value = appearance.titleWordSpacing;
+  document.getElementById("title-line-height-control").value = appearance.titleLineHeight;
+  document.getElementById("line-height-control").value = appearance.lineHeight;
+  document.getElementById("paragraph-spacing-control").value = appearance.paragraphSpacing;
+};
+
+const getSiteContentSettings = () => ({
+  aboutTitle:
+    portfolioData.settings?.siteContent?.aboutTitle ||
+    "Thoughtful design grounded in systems and detail.",
+  projectsTitle:
+    portfolioData.settings?.siteContent?.projectsTitle ||
+    "Selected work across health, AI, and product infrastructure.",
+  experienceTitle:
+    portfolioData.settings?.siteContent?.experienceTitle ||
+    "Designing with product teams from concept to scale.",
+  blogsTitle:
+    portfolioData.settings?.siteContent?.blogsTitle ||
+    "Writing on design clarity, systems, and the shape of AI products.",
+  contactTitle:
+    portfolioData.settings?.siteContent?.contactTitle ||
+    "Let’s design something thoughtful together."
+});
+
+const getSocialByKey = (key) =>
+  (Array.isArray(portfolioData.profile?.socials) ? portfolioData.profile.socials : []).find(
+    (item) => item?.key === key || String(item?.label || "").toLowerCase() === key
+  ) || { url: "", visible: false };
 
 const getProfileStatusElement = (submitter = null) =>
   document.getElementById(submitter?.dataset?.statusTarget || "identity-status");
@@ -1142,6 +1236,8 @@ const renderExclusiveProjectsAdmin = () => {
 };
 
 const fillBlogForm = (blog) => {
+  pendingBlogEditorCoverImage = "";
+  removeBlogCoverOnSave = false;
   document.getElementById("blog-id").value = blog.id;
   document.getElementById("blog-title").value = blog.title;
   document.getElementById("blog-preview").value = blog.preview;
@@ -1150,6 +1246,10 @@ const fillBlogForm = (blog) => {
   document.getElementById("blog-tags").value = blog.tags.join(", ");
   document.getElementById("blog-featured").checked = blog.featured;
   document.querySelector('[data-editor="blog-content"]').innerHTML = blog.content;
+  if (blogCoverImageInput) {
+    blogCoverImageInput.value = "";
+  }
+  updateImagePreview("blog-cover-preview", blog.coverImage || "", "No cover image");
   if (blogEditorTitle) {
     blogEditorTitle.textContent = blog.title || "Start a new blog";
   }
@@ -1210,6 +1310,22 @@ const renderExperienceAdmin = () => {
               <span contenteditable="true" data-exp-field="duration" data-exp-id="${item.id}">${item.duration}</span>
             </p>
             <p class="experience-note" contenteditable="true" data-exp-field="highlights" data-exp-id="${item.id}">${item.highlights.join(" | ")}</p>
+            <div class="experience-logo-admin">
+              <div class="brand-icon-preview experience-logo-preview" data-exp-logo-preview="${item.id}">
+                ${
+                  item.logo
+                    ? `<img class="brand-mark-image" src="${item.logo}" alt="${item.company || "Company"} logo" />`
+                    : `<span>No logo</span>`
+                }
+              </div>
+              <label class="dashboard-media-upload">
+                Company logo
+                <input type="file" accept="image/*" data-exp-logo-upload="${item.id}" />
+              </label>
+              <button class="admin-button" type="button" data-remove-exp-logo="${item.id}">
+                Remove logo
+              </button>
+            </div>
           </div>
           <div class="experience-actions">
             <button class="admin-button" type="button" data-move-up="${index}">Up</button>
@@ -1273,6 +1389,40 @@ const renderExperienceAdmin = () => {
       saveAndRefresh("Experience entry deleted.");
     });
   });
+
+  list.querySelectorAll("[data-exp-logo-upload]").forEach((input) => {
+    input.addEventListener("change", async () => {
+      const item = portfolioData.experience.find((entry) => entry.id === input.dataset.expLogoUpload);
+      if (!item) {
+        return;
+      }
+
+      const uploadedLogo = await readFileAsDataUrl(input.files?.[0], {
+        maxWidth: 320,
+        maxHeight: 320,
+        quality: 0.86,
+        mimeType: "image/webp"
+      });
+      if (!uploadedLogo) {
+        return;
+      }
+
+      item.logo = uploadedLogo;
+      saveAndRefresh("Experience logo updated.");
+    });
+  });
+
+  list.querySelectorAll("[data-remove-exp-logo]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const item = portfolioData.experience.find((entry) => entry.id === button.dataset.removeExpLogo);
+      if (!item) {
+        return;
+      }
+
+      item.logo = "";
+      saveAndRefresh("Experience logo removed.");
+    });
+  });
 };
 
 const bindMediaUploads = (root, mediaType) => {
@@ -1299,6 +1449,25 @@ const bindMediaUploads = (root, mediaType) => {
       renderDashboardMediaAdmin();
     });
   });
+
+  root.querySelectorAll("[data-remove-dashboard-media-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const mediaId = button.dataset.removeDashboardMediaId;
+      if (!mediaId) {
+        return;
+      }
+
+      if (mediaType === "project") {
+        pendingProjectMedia[mediaId] = "";
+        setStatus(projectMediaStatus, "Project image will be removed. Click save to apply.");
+      } else if (mediaType === "blog") {
+        pendingBlogMedia[mediaId] = "";
+        setStatus(blogMediaStatus, "Blog image will be removed. Click save to apply.");
+      }
+
+      renderDashboardMediaAdmin();
+    });
+  });
 };
 
 const renderMediaList = (root, items, mediaType) => {
@@ -1322,6 +1491,9 @@ const renderMediaList = (root, items, mediaType) => {
             Replace image
             <input type="file" accept="image/*" data-dashboard-media-type="${item.type.toLowerCase()}" data-dashboard-media-id="${item.id}" />
           </label>
+          <button class="admin-button" type="button" data-remove-dashboard-media-id="${item.id}">
+            Remove image
+          </button>
         </article>
       `
     )
@@ -1359,6 +1531,8 @@ const renderDashboardMediaAdmin = () => {
 const populateProfileForm = () => {
   const profile = portfolioData.profile;
   const brand = getBrandSettings();
+  const appearance = getAppearanceSettings();
+  const siteContent = getSiteContentSettings();
   const cvMeta = document.getElementById("cv-file-meta");
   document.getElementById("profile-name").value = profile.name;
   document.getElementById("profile-first-name").value = profile.firstName;
@@ -1366,12 +1540,28 @@ const populateProfileForm = () => {
   document.getElementById("profile-tagline").value = profile.tagline;
   document.getElementById("profile-about").value = profile.about;
   document.getElementById("profile-contact-copy").value = profile.contactCopy;
+  document.getElementById("content-about-title").value = siteContent.aboutTitle;
+  document.getElementById("content-projects-title").value = siteContent.projectsTitle;
+  document.getElementById("content-experience-title").value = siteContent.experienceTitle;
+  document.getElementById("content-blogs-title").value = siteContent.blogsTitle;
+  document.getElementById("content-contact-title").value = siteContent.contactTitle;
   document.getElementById("focus-one").value = profile.focusAreas[0]?.title || "";
   document.getElementById("focus-two").value = profile.focusAreas[1]?.title || "";
   document.getElementById("focus-three").value = profile.focusAreas[2]?.title || "";
-  document.getElementById("social-linkedin").value = profile.socials[0]?.url || "";
-  document.getElementById("social-dribbble").value = profile.socials[1]?.url || "";
-  document.getElementById("social-github").value = profile.socials[2]?.url || "";
+  document.getElementById("social-linkedin").value = getSocialByKey("linkedin").url || "";
+  document.getElementById("social-linkedin-visible").checked = Boolean(getSocialByKey("linkedin").visible);
+  document.getElementById("social-behance").value = getSocialByKey("behance").url || "";
+  document.getElementById("social-behance-visible").checked = Boolean(getSocialByKey("behance").visible);
+  document.getElementById("social-github").value = getSocialByKey("github").url || "";
+  document.getElementById("social-github-visible").checked = Boolean(getSocialByKey("github").visible);
+  document.getElementById("social-discord").value = getSocialByKey("discord").url || "";
+  document.getElementById("social-discord-visible").checked = Boolean(getSocialByKey("discord").visible);
+  document.getElementById("social-twitter").value = getSocialByKey("twitter").url || "";
+  document.getElementById("social-twitter-visible").checked = Boolean(getSocialByKey("twitter").visible);
+  document.getElementById("social-instagram").value = getSocialByKey("instagram").url || "";
+  document.getElementById("social-instagram-visible").checked = Boolean(getSocialByKey("instagram").visible);
+  document.getElementById("social-dribbble").value = getSocialByKey("dribbble").url || "";
+  document.getElementById("social-dribbble-visible").checked = Boolean(getSocialByKey("dribbble").visible);
   document.getElementById("skills-ux").value = profile.skills[0]?.items.join(", ") || "";
   document.getElementById("skills-ui").value = profile.skills[1]?.items.join(", ") || "";
   document.getElementById("skills-tools").value = profile.skills[2]?.items.join(", ") || "";
@@ -1384,6 +1574,7 @@ const populateProfileForm = () => {
   document.getElementById("brand-accent-start").value = brand.accentStart;
   document.getElementById("brand-accent-end").value = brand.accentEnd;
   document.getElementById("brand-accent-dot").value = brand.accentDot;
+  applyAppearanceValuesToForm(appearance);
   document.getElementById("profile-cv-file").value = "";
   if (cvMeta) {
     const pendingName = pendingProfileUploads.cvFileName;
@@ -1472,33 +1663,59 @@ const buildProjectFromDraft = () => {
     return null;
   }
 
+  const existingPublicProject = portfolioData.projects.find((item) => item.id === currentProjectDraft.id);
   const coverImage =
     currentProjectDraft.coverImage ||
     currentProjectDraft.caseStudy.overview.coverImage ||
-    "/assets/project-atlas.svg";
+    existingPublicProject?.coverImage ||
+    existingPublicProject?.thumbnail ||
+    "";
 
   return {
+    ...(existingPublicProject || {}),
     ...currentProjectDraft,
     id: currentProjectDraft.id || slugify(title),
     title,
-    thumbnail: coverImage,
-    coverImage,
+    thumbnail: coverImage || "",
+    coverImage: coverImage || "",
     status: "published",
     caseStudy: {
+      ...(existingPublicProject?.caseStudy || {}),
       ...currentProjectDraft.caseStudy,
       overview: {
+        ...(existingPublicProject?.caseStudy?.overview || {}),
         ...currentProjectDraft.caseStudy.overview,
-        coverImage,
+        coverImage: coverImage || "",
         summary:
-          currentProjectDraft.caseStudy.overview.summary || currentProjectDraft.description,
-        role: currentProjectDraft.caseStudy.overview.role || currentProjectDraft.role,
+          currentProjectDraft.caseStudy.overview.summary ||
+          currentProjectDraft.description ||
+          existingPublicProject?.caseStudy?.overview?.summary ||
+          "",
+        role:
+          currentProjectDraft.caseStudy.overview.role ||
+          currentProjectDraft.role ||
+          existingPublicProject?.caseStudy?.overview?.role ||
+          "",
         duration:
-          currentProjectDraft.caseStudy.overview.duration || currentProjectDraft.timeline
+          currentProjectDraft.caseStudy.overview.duration ||
+          currentProjectDraft.timeline ||
+          existingPublicProject?.caseStudy?.overview?.duration ||
+          ""
       }
     },
-    challenge: currentProjectDraft.caseStudy.problemStatement || currentProjectDraft.challenge || "",
-    approach: `<p>${currentProjectDraft.caseStudy.designPrinciples.join("</p><p>")}</p>`,
-    impact: currentProjectDraft.caseStudy.outcome || currentProjectDraft.impact || ""
+    challenge:
+      currentProjectDraft.caseStudy.problemStatement ||
+      currentProjectDraft.challenge ||
+      existingPublicProject?.challenge ||
+      "",
+    approach: currentProjectDraft.caseStudy.designPrinciples.length
+      ? `<p>${currentProjectDraft.caseStudy.designPrinciples.join("</p><p>")}</p>`
+      : existingPublicProject?.approach || "",
+    impact:
+      currentProjectDraft.caseStudy.outcome ||
+      currentProjectDraft.impact ||
+      existingPublicProject?.impact ||
+      ""
   };
 };
 
@@ -1763,6 +1980,33 @@ blogBackButton?.addEventListener("click", () => {
 saveProjectMediaButton?.addEventListener("click", savePendingProjectMedia);
 saveBlogMediaButton?.addEventListener("click", savePendingBlogMedia);
 
+blogCoverImageInput?.addEventListener("change", async (event) => {
+  const uploadedImage = await readFileAsDataUrl(event.target.files?.[0], {
+    maxWidth: 1400,
+    maxHeight: 1400,
+    quality: 0.8,
+    mimeType: "image/webp"
+  });
+  if (!uploadedImage) {
+    return;
+  }
+
+  pendingBlogEditorCoverImage = uploadedImage;
+  removeBlogCoverOnSave = false;
+  updateImagePreview("blog-cover-preview", uploadedImage, "No cover image");
+  setStatus(blogStatus, "Cover image selected. Click save blog to apply.");
+});
+
+removeBlogCoverButton?.addEventListener("click", () => {
+  pendingBlogEditorCoverImage = "";
+  removeBlogCoverOnSave = true;
+  if (blogCoverImageInput) {
+    blogCoverImageInput.value = "";
+  }
+  updateImagePreview("blog-cover-preview", "", "No cover image");
+  setStatus(blogStatus, "Cover image will be removed when you save blog.");
+});
+
 document.getElementById("profile-banner-image")?.addEventListener("change", async (event) => {
   const uploadedBannerImage = await readFileAsDataUrl(event.target.files?.[0], {
     maxWidth: 1280,
@@ -1803,6 +2047,7 @@ removeProfileImageButton?.addEventListener("click", () => {
   removeProfileImageOnSave = true;
   document.getElementById("profile-image-input").value = "";
   updateImagePreview("profile-image-preview", "", "No profile image");
+  renderStudioBrand();
   setStatus(document.getElementById("identity-status"), "Profile image will be removed when you save identity.");
 });
 
@@ -1885,7 +2130,11 @@ blogForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const existingId = document.getElementById("blog-id").value;
   const existingBlog = portfolioData.blogs.find((item) => item.id === existingId);
+  const coverImage = removeBlogCoverOnSave
+    ? ""
+    : pendingBlogEditorCoverImage || existingBlog?.coverImage || "";
   const blog = {
+    ...(existingBlog || {}),
     id: existingId || slugify(document.getElementById("blog-title").value),
     title: document.getElementById("blog-title").value.trim(),
     preview: document.getElementById("blog-preview").value.trim(),
@@ -1893,7 +2142,7 @@ blogForm.addEventListener("submit", async (event) => {
     date: document.getElementById("blog-date").value,
     tags: parseTags(document.getElementById("blog-tags").value),
     featured: document.getElementById("blog-featured").checked,
-    coverImage: existingBlog?.coverImage || "/assets/project-lumen.svg",
+    coverImage,
     content: document.querySelector('[data-editor="blog-content"]').innerHTML
   };
 
@@ -1905,6 +2154,8 @@ blogForm.addEventListener("submit", async (event) => {
   }
 
   selectedBlogId = blog.id;
+  pendingBlogEditorCoverImage = "";
+  removeBlogCoverOnSave = false;
   saveAndRefresh("Blog saved.", blogStatus);
 });
 
@@ -1914,6 +2165,8 @@ document.getElementById("delete-blog-button").addEventListener("click", () => {
 
   portfolioData.blogs = portfolioData.blogs.filter((item) => item.id !== existingId);
   selectedBlogId = portfolioData.blogs[0]?.id || "";
+  pendingBlogEditorCoverImage = "";
+  removeBlogCoverOnSave = false;
   saveAndRefresh("Blog deleted.", blogStatus);
 });
 
@@ -1941,6 +2194,7 @@ document.getElementById("new-experience-button").addEventListener("click", () =>
     id: `experience-${Date.now()}`,
     role: "New Role",
     company: "Company",
+    logo: "",
     duration: "2026",
     highlights: ["Highlight one", "Highlight two", "Highlight three"]
   });
@@ -1950,6 +2204,7 @@ document.getElementById("new-experience-button").addEventListener("click", () =>
 const saveProfileSection = async (submitter) => {
   const profileStatusElement = getProfileStatusElement(submitter);
   const saveSection = submitter?.dataset?.profileSave || "identity";
+  const nextAdminPasswordValue = document.getElementById("admin-password-input").value.trim();
   const exclusivePasswordValue = document.getElementById("exclusive-password-input-admin").value.trim();
   const exclusiveSettings = getExclusiveSettings();
   const currentExclusivePassword =
@@ -2021,6 +2276,19 @@ const saveProfileSection = async (submitter) => {
     };
   }
 
+  if (saveSection === "site-copy") {
+    portfolioData.settings = {
+      ...portfolioData.settings,
+      siteContent: {
+        aboutTitle: document.getElementById("content-about-title").value.trim(),
+        projectsTitle: document.getElementById("content-projects-title").value.trim(),
+        experienceTitle: document.getElementById("content-experience-title").value.trim(),
+        blogsTitle: document.getElementById("content-blogs-title").value.trim(),
+        contactTitle: document.getElementById("content-contact-title").value.trim()
+      }
+    };
+  }
+
   if (saveSection === "brand-icon") {
     portfolioData.profile = {
       ...portfolioData.profile,
@@ -2054,17 +2322,81 @@ const saveProfileSection = async (submitter) => {
       ]
         .filter(Boolean)
         .map((title) => ({ title, description: "" })),
-      socials: [
-        { label: "LinkedIn", url: document.getElementById("social-linkedin").value.trim() },
-        { label: "Dribbble", url: document.getElementById("social-dribbble").value.trim() },
-        { label: "GitHub", url: document.getElementById("social-github").value.trim() }
-      ],
       skills: [
         { group: "UX", items: parseTags(document.getElementById("skills-ux").value) },
         { group: "UI", items: parseTags(document.getElementById("skills-ui").value) },
         { group: "Tools", items: parseTags(document.getElementById("skills-tools").value) },
         { group: "Systems Thinking", items: parseTags(document.getElementById("skills-systems").value) }
       ]
+    };
+  }
+
+  if (saveSection === "social-media") {
+    portfolioData.profile = {
+      ...portfolioData.profile,
+      socials: [
+        {
+          key: "linkedin",
+          label: "LinkedIn",
+          url: normalizeExternalUrl(document.getElementById("social-linkedin").value),
+          visible: document.getElementById("social-linkedin-visible").checked
+        },
+        {
+          key: "behance",
+          label: "Behance",
+          url: normalizeExternalUrl(document.getElementById("social-behance").value),
+          visible: document.getElementById("social-behance-visible").checked
+        },
+        {
+          key: "github",
+          label: "GitHub",
+          url: normalizeExternalUrl(document.getElementById("social-github").value),
+          visible: document.getElementById("social-github-visible").checked
+        },
+        {
+          key: "discord",
+          label: "Discord",
+          url: normalizeExternalUrl(document.getElementById("social-discord").value),
+          visible: document.getElementById("social-discord-visible").checked
+        },
+        {
+          key: "twitter",
+          label: "Twitter",
+          url: normalizeExternalUrl(document.getElementById("social-twitter").value),
+          visible: document.getElementById("social-twitter-visible").checked
+        },
+        {
+          key: "instagram",
+          label: "Instagram",
+          url: normalizeExternalUrl(document.getElementById("social-instagram").value),
+          visible: document.getElementById("social-instagram-visible").checked
+        },
+        {
+          key: "dribbble",
+          label: "Dribbble",
+          url: normalizeExternalUrl(document.getElementById("social-dribbble").value),
+          visible: document.getElementById("social-dribbble-visible").checked
+        }
+      ]
+    };
+  }
+
+  if (saveSection === "appearance") {
+    portfolioData.settings = {
+      ...portfolioData.settings,
+      appearance: {
+        themeMode: document.getElementById("default-theme-mode").value,
+        fontFamily: document.getElementById("font-family-mode").value,
+        titleFontFamily: document.getElementById("title-font-family-mode").value,
+        titleFontWeight: document.getElementById("title-font-weight-mode").value || "600",
+        letterSpacing: document.getElementById("letter-spacing-control").value || "0",
+        wordSpacing: document.getElementById("word-spacing-control").value || "0",
+        titleLetterSpacing: document.getElementById("title-letter-spacing-control").value || "-0.05",
+        titleWordSpacing: document.getElementById("title-word-spacing-control").value || "0",
+        titleLineHeight: document.getElementById("title-line-height-control").value || "1.08",
+        lineHeight: document.getElementById("line-height-control").value || "1.6",
+        paragraphSpacing: document.getElementById("paragraph-spacing-control").value || "1"
+      }
     };
   }
 
@@ -2136,6 +2468,14 @@ const saveProfileSection = async (submitter) => {
     };
   }
 
+  if (saveSection === "studio-access" && nextAdminPasswordValue) {
+    localStorage.setItem(ADMIN_PASSWORD_STORAGE_KEY, nextAdminPasswordValue);
+  }
+
+  if (exclusivePasswordChanged) {
+    localStorage.setItem(EXCLUSIVE_ADMIN_PASSWORD_STORAGE_KEY, exclusivePasswordValue);
+  }
+
   const didSave = saveAndRefresh("Changes saved.", profileStatusElement);
   if (didSave) {
     if (saveSection === "identity") {
@@ -2158,13 +2498,6 @@ const saveProfileSection = async (submitter) => {
       removeCvOnSave = false;
     }
     renderStudioBrand();
-    const nextPassword = document.getElementById("admin-password-input").value.trim();
-    if (saveSection === "studio-access" && nextPassword) {
-      localStorage.setItem(ADMIN_PASSWORD_STORAGE_KEY, nextPassword);
-    }
-    if (exclusivePasswordChanged) {
-      localStorage.setItem(EXCLUSIVE_ADMIN_PASSWORD_STORAGE_KEY, exclusivePasswordValue);
-    }
     populateProfileForm();
   }
 };
@@ -2177,6 +2510,16 @@ document.querySelectorAll("[data-profile-save]").forEach((button) => {
   button.addEventListener("click", async () => {
     await saveProfileSection(button);
   });
+});
+
+document.getElementById("appearance-reset-button")?.addEventListener("click", async () => {
+  applyAppearanceValuesToForm(DEFAULT_APPEARANCE_SETTINGS);
+  const saveButton = document.querySelector('[data-profile-save="appearance"]');
+  await saveProfileSection(saveButton);
+  setStatus(
+    document.getElementById("appearance-status"),
+    "Appearance reset to default values."
+  );
 });
 
 document.getElementById("reset-data-button").addEventListener("click", () => {

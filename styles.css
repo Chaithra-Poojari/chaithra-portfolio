@@ -1,6 +1,15 @@
 :root {
   --font-sans: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-signature: "Allura", cursive;
+  --body-letter-spacing: 0em;
+  --body-word-spacing: 0em;
+  --heading-letter-spacing: -0.05em;
+  --heading-word-spacing: 0em;
+  --heading-line-height: 1.08;
+  --heading-font-weight: 600;
+  --body-line-height: 1.6;
+  --paragraph-spacing: 1rem;
   --space-1: 0.5rem;
   --space-2: 1rem;
   --space-3: 1.5rem;
@@ -82,13 +91,38 @@ body {
   font-family: var(--font-sans);
   background: var(--gradient-main);
   color: var(--text);
-  line-height: 1.6;
+  line-height: var(--body-line-height);
+  letter-spacing: var(--body-letter-spacing);
+  word-spacing: var(--body-word-spacing);
   overflow-x: hidden;
   transition:
     background var(--transition),
     color var(--transition),
     opacity 360ms ease,
     transform 360ms ease;
+}
+
+h1,
+h2,
+h3,
+h4,
+.project-topline h3,
+.blog-post-hero h1,
+.blog-card h3,
+.journey-node h3,
+.case-content h2,
+.case-empathy-card h3,
+.case-persona-card h3,
+.case-persona-card h4,
+.exclusive-projects-head h3,
+.contact-copy h2,
+.profile-copy h3,
+.skill-card h3 {
+  font-family: var(--font-display);
+  letter-spacing: var(--heading-letter-spacing) !important;
+  word-spacing: var(--heading-word-spacing) !important;
+  line-height: var(--heading-line-height) !important;
+  font-weight: var(--heading-font-weight) !important;
 }
 
 body::before {
@@ -117,6 +151,35 @@ button,
 input,
 textarea {
   font: inherit;
+}
+
+p,
+li,
+dd,
+input,
+textarea,
+button {
+  letter-spacing: var(--body-letter-spacing);
+  word-spacing: var(--body-word-spacing);
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: var(--paragraph-spacing);
+}
+
+.hero-text,
+.profile-copy p,
+.contact-copy p,
+.blog-card-body p,
+.journey-node-card p,
+.case-content p,
+.case-empathy-card p,
+.case-persona-card p,
+.blog-post-content p,
+.blog-post-summary,
+.metric-stack p {
+  margin-bottom: var(--paragraph-spacing);
 }
 
 .container {
@@ -817,8 +880,6 @@ body[data-theme="midnight-orchid"] .brand-mark {
 .section-heading h2,
 .case-hero h1 {
   margin: 0;
-  letter-spacing: -0.05em;
-  line-height: 0.96;
 }
 
 .hero-copy h1 {
@@ -846,6 +907,22 @@ body[data-theme="midnight-orchid"] .brand-mark {
   color: var(--muted);
   font-size: clamp(0.98rem, 1.5vw, 1.05rem);
   max-width: 56ch;
+}
+
+.hero-text:last-child,
+.section-heading p:last-child,
+.profile-copy p:last-child,
+.contact-copy p:last-child,
+.case-intro:last-child,
+.blog-card-body p:last-child,
+.journey-node-card p:last-child,
+.case-empathy-card p:last-child,
+.case-persona-card p:last-child,
+.case-content p:last-child,
+.blog-post-content p:last-child,
+.blog-post-summary:last-child,
+.metric-stack p:last-child {
+  margin-bottom: 0;
 }
 
 .eyebrow {
@@ -1314,7 +1391,6 @@ body[data-theme="midnight-orchid"] .brand-mark {
 .profile-copy h3,
 .contact-copy h2 {
   margin-top: 0;
-  letter-spacing: -0.03em;
 }
 
 .projects-grid {
@@ -1328,6 +1404,19 @@ body[data-theme="midnight-orchid"] .brand-mark {
     transform var(--transition),
     box-shadow var(--transition),
     border-color var(--transition);
+}
+
+.project-thumb-empty {
+  min-height: 14.5rem;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 96%, white), var(--surface));
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .project-card:hover {
@@ -1645,7 +1734,6 @@ body.modal-open {
 
 .project-topline h3 {
   margin: 0;
-  letter-spacing: -0.03em;
 }
 
 .tag-row,
@@ -1653,6 +1741,57 @@ body.modal-open {
   display: flex;
   flex-wrap: wrap;
   gap: 0.7rem;
+}
+
+.social-link-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  color: var(--muted);
+  transition:
+    color var(--transition),
+    border-color var(--transition),
+    background var(--transition),
+    transform var(--transition),
+    box-shadow var(--transition);
+}
+
+.social-link-chip:hover {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 22%, var(--border));
+  background: color-mix(in srgb, var(--accent-soft) 55%, var(--surface));
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(10, 10, 18, 0.08);
+}
+
+.social-link-icon {
+  width: 1.65rem;
+  height: 1.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.social-link-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.social-link-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.social-link-label {
+  font-weight: 600;
 }
 
 .tag-row span {
@@ -1800,12 +1939,14 @@ body.modal-open {
 }
 
 .journey-node-card {
-  padding: 1.35rem 1.4rem;
+  padding: 1.55rem 1.55rem 1.45rem;
   border-radius: 1.4rem;
   background: var(--surface);
   border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
   backdrop-filter: blur(18px);
+  display: grid;
+  gap: 0.85rem;
   transition:
     transform var(--transition),
     background var(--transition),
@@ -1813,14 +1954,14 @@ body.modal-open {
 }
 
 .journey-node:hover .journey-node-card {
-  transform: scale(1.03);
-  box-shadow: 0 12px 28px rgba(10, 10, 18, 0.12);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 14px 32px rgba(10, 10, 18, 0.1);
 }
 
 .journey-node-header {
   display: flex;
-  align-items: center;
-  gap: 0.9rem;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
 .journey-company-logo {
@@ -1832,6 +1973,14 @@ body.modal-open {
   background: color-mix(in srgb, var(--accent) 8%, var(--surface-strong));
   border: 1px solid color-mix(in srgb, var(--accent) 12%, var(--border));
   color: var(--text);
+  overflow: hidden;
+}
+
+.journey-company-logo img {
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+  display: block;
 }
 
 .journey-company-logo svg {
@@ -1861,20 +2010,31 @@ body.modal-open {
 .journey-node h3 {
   font-size: 1.08rem;
   letter-spacing: -0.03em;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--text);
 }
 
 .journey-node-meta {
   margin-top: 0.25rem;
+  line-height: 1.4;
+  font-weight: 500;
+  font-size: 0.94rem;
+  letter-spacing: 0;
   color: var(--muted);
 }
 
 .journey-node-duration {
-  margin-top: 0.85rem;
   color: var(--text);
   font-size: 0.84rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  line-height: 1.35;
+}
+
+.journey-node-description {
+  line-height: 1.58;
 }
 
 .journey-node-description {
@@ -2052,9 +2212,8 @@ body.modal-open {
   text-decoration-color: currentColor;
 }
 
-.social-links a {
-  color: var(--muted);
-  font-weight: 600;
+.social-links[hidden] {
+  display: none;
 }
 
 .reveal {
@@ -2289,7 +2448,6 @@ body.modal-open {
 .case-persona-card h3,
 .case-persona-card h4 {
   margin: 0 0 0.5rem;
-  letter-spacing: -0.03em;
 }
 
 .case-persona-role {
@@ -2380,8 +2538,6 @@ body[data-case-template="experimental"] .case-content section {
 .blog-post-hero h1 {
   margin: 0;
   font-size: clamp(2.6rem, 6vw, 4.8rem);
-  line-height: 0.96;
-  letter-spacing: -0.05em;
 }
 
 .blog-post-summary {
@@ -2436,10 +2592,18 @@ body[data-case-template="experimental"] .case-content section {
 }
 
 .case-cover {
+  width: min(100%, 52rem);
+  margin-inline: auto;
   border-radius: var(--radius-xl);
   overflow: hidden;
   border: 1px solid var(--border);
   box-shadow: var(--card-shadow);
+}
+
+.case-cover img {
+  width: 100%;
+  max-height: 26rem;
+  object-fit: cover;
 }
 
 .back-link {
