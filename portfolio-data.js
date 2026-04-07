@@ -1,4 +1,4 @@
-{
+const importedPortfolioData = {
   "profile": {
     "name": "Chaithra Poojary",
     "firstName": "Chaithra",
@@ -36,7 +36,7 @@
     ],
     "skills": [
       {
-        "group": "UX",
+        "group": "UX Skills",
         "items": [
           "Complex Workflows",
           "User Flows",
@@ -45,7 +45,7 @@
         ]
       },
       {
-        "group": "UI",
+        "group": "UI Skills",
         "items": [
           "Interface Design",
           "Visual Systems",
@@ -66,7 +66,7 @@
         ]
       },
       {
-        "group": "Systems Thinking",
+        "group": "System Thinking",
         "items": [
           "Design Systems",
           "Product Architecture",
@@ -411,28 +411,6 @@
         "iv": "ONlcDdsGhbSUf7WJ",
         "cipherText": "1XRXlDEZ/EgiWYtvDIsMJJbfQto/Xm38cal8CEn145XU9Tb4CAScOU6azz+JS/IrMVjV1jwylibMZk1O7tYRV5VfYjBfzUKJJ9AKvPGJ8VazCm2Ws5zMr6JyEkD2IM19A/lKVNwnRAZ6N23ngCQztkTeqSwo6C+43foR7GRts4jwee07/6qAZad+B4g54A/dMY2ibo2VgP623mqhe3gdhvdyvGfFRSyuL1IkpXe9iCgqcj5BI0Rb1bBj9/w+fyFb2kYNwYv+3UdvvW3jH/agEd4Ikef1M332wtkfmWKHcGf7+PjIe6LHiMhIDCd1y8ESaOsBjDeJrvfmNbvEk6/Wo3tpQpiGGcmoocGsLjAkO4TTapW3iUuAC030Oy/P/iRQt8/HMzFAdpjiuF/Ntc0e/eGZBQ6CySkV5j9mDKdaU/vjNlMRLMt8KDV1O+w2pcMinx+9VNX0ogA3oLmw2ZP3SJnq7fcMA7sLBmlYmVv0u1FJXwd9QTIZXkcFDGFgpHgtDye0dIpJQumHED0T4Sf6nFwYXh+DAYGtgYZQHu3lLmceQBPDRhpYRYgJtv7tzZjehfNguZebcJ4d84d+Mf3Em7i6bhMhtSDRHoBrcOkwAJAiaBW9tUJk+QfYn7q4oVwVEUoS+KzcQNsBUwUo1x8q4uDcBksnW6ntbTaDVVvS9VvSkEKRQwH07VBcq1XxrL5biMX5ciHCTo8Cu5CG0fmKVuy98I1QsUYs3k4LiREold+brB4VGh3B2xzQfopUVNqrpQOZaOUdgaXK+GicqWQlUyhySflFrIaMVfX9eZw5Sre1yEJ+OUXqdXru3I64SBvXVlCFSE1lx7mD8ML3aensspeMGCMdBcALBgPr0+BiI7pj55hZKbZgwKR3KkQVRoM9lJtzKgPi3NrQrcKhYUNUT4vdxQeTzr3CCO8E8rHNiq9utBFbA4hvJv+mR47wVN4J50pbvHivmDZ5faR/3gK7ReWnYV+jUQC83K09FUAHfoHjScNCKqH0HLopfiUGSJSN+gPUoIBKbttZ9tSGI2kSnK61I/GHbT0Ko7x9OR8qcwigWnshVkNZGuXW8PPKuYdVZGu6OABSyE3kXXIHz6azE7+3LpSn/Js6+JTdQkrEmrVh31v9giPT+v2X/4JOzequBc4pgeFCRRZdaNRJabJdHsYCh4EjfKwTz3SWlrE2QUg3wwJ9yQQgUVbkfrTqP7CIanFl5q5DC0q6e+AJKTlrkRDh+SdpJHsP5cFxlNC0tM8X8CypABd0uYU6+b2qJbPTxWjTgdJw2PjaIx6D2xlGM7pdPnovpYee8IQqyt0LA5c3HX7AtFk3AJOYPU9Hn3HKwhXVbxszEqy6sQZwhnpzPciQdJQg9sTrPohdX7cwxPUBUoDRP0nvYmnYHA=="
       }
-    },
-    {
-      "id": "confidential-mobile-care",
-      "title": "Confidential Mobile Care App",
-      "category": "Mobile App",
-      "summary": "Created a private mobile health companion focused on check-ins, task clarity, and continuity between appointments.",
-      "description": "Created a private mobile health companion focused on check-ins, task clarity, and continuity between appointments.",
-      "thumbnail": "/assets/project-atlas.svg",
-      "coverImage": "/assets/project-atlas.svg",
-      "tags": [
-        "Mobile",
-        "Healthcare",
-        "UX"
-      ],
-      "template": "mobile-app",
-      "featured": false,
-      "encryptedPayload": {
-        "version": 1,
-        "salt": "TYVlr7UlovBp9nnm23kc2A==",
-        "iv": "711uIfOtLMgpYbZH",
-        "cipherText": "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"
-      }
     }
   ],
   "blogs": [
@@ -511,4 +489,785 @@
       ]
     }
   ]
-}
+};
+
+const PORTFOLIO_STORAGE_KEY = "cpw-portfolio-data";
+const CV_ASSET_DB_NAME = "cpw-portfolio-assets";
+const CV_ASSET_STORE_NAME = "cv-assets";
+const EXCLUSIVE_KEY_ITERATIONS = 250000;
+const DEFAULT_CONTENT_REVISION = "2026-04-07-about-sync-v2";
+
+const PROJECT_TEMPLATES = [
+  {
+    id: "medical",
+    label: "Medical",
+    icon: "cross",
+    description: "Soft, structured storytelling for healthcare and care delivery products."
+  },
+  {
+    id: "ai-saas",
+    label: "AI / SaaS",
+    icon: "spark",
+    description: "Clean, grid-led cases for AI tooling, automation, and SaaS workflows."
+  },
+  {
+    id: "mobile-app",
+    label: "Mobile App",
+    icon: "phone",
+    description: "Rounded, app-like framing for consumer and productivity mobile experiences."
+  },
+  {
+    id: "business-dashboard",
+    label: "Business Dashboard",
+    icon: "chart",
+    description: "Operational case studies for analytics, admin tools, and B2B systems."
+  },
+  {
+    id: "e-commerce",
+    label: "E-commerce",
+    icon: "bag",
+    description: "Conversion-focused layouts for shopping, checkout, and product discovery."
+  },
+  {
+    id: "experimental",
+    label: "Experimental",
+    icon: "star",
+    description: "More expressive framing for labs, concepts, and exploratory work."
+  }
+];
+
+const CASE_STUDY_STEP_LABELS = [
+  "Project Overview",
+  "Problem Statement",
+  "Goals & Objectives",
+  "Empathy Map",
+  "User Persona",
+  "Design Principles",
+  "User Journey",
+  "User Flow",
+  "Wireframes/UI Guide",
+  "Final Screens",
+  "Outcome",
+  "Learnings"
+];
+
+const DEFAULT_SOCIALS = [
+  { key: "linkedin", label: "LinkedIn", url: "", visible: false },
+  { key: "behance", label: "Behance", url: "", visible: false },
+  { key: "github", label: "GitHub", url: "", visible: false },
+  { key: "discord", label: "Discord", url: "", visible: false },
+  { key: "twitter", label: "Twitter", url: "", visible: false },
+  { key: "instagram", label: "Instagram", url: "", visible: false },
+  { key: "dribbble", label: "Dribbble", url: "", visible: false }
+];
+
+const DEFAULT_APPEARANCE_SETTINGS = {
+  themeMode: "system",
+  fontFamily: "standard",
+  titleFontFamily: "standard",
+  titleFontWeight: "600",
+  letterSpacing: "0",
+  wordSpacing: "0",
+  titleLetterSpacing: "-0.05",
+  titleWordSpacing: "0",
+  titleLineHeight: "1.08",
+  lineHeight: "1.6",
+  paragraphSpacing: "1"
+};
+
+const DEFAULT_SITE_CONTENT = {
+  aboutTitle: "Thoughtful design grounded in systems and detail.",
+  projectsTitle: "Selected work across health, AI, and product infrastructure.",
+  experienceTitle: "Designing with product teams from concept to scale.",
+  blogsTitle: "Writing on design clarity, systems, and the shape of AI products.",
+  contactTitle: "Let’s design something thoughtful together."
+};
+
+const REMOVED_EXCLUSIVE_PROJECT_IDS = new Set(["confidential-mobile-care"]);
+
+const deepClone = (value) => JSON.parse(JSON.stringify(value));
+
+const ensureArray = (value) => (Array.isArray(value) ? value : []);
+
+const safeString = (value, fallback = "") => {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (value == null) {
+    return fallback;
+  }
+  return String(value);
+};
+
+const safeTrimmedString = (value, fallback = "") => safeString(value, fallback).trim();
+
+const normalizeAssetPath = (value, fallback = "") => {
+  const normalized = safeTrimmedString(value, fallback);
+  return normalized || fallback;
+};
+
+const slugify = (value, fallback = "item") =>
+  safeTrimmedString(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || fallback;
+
+const createEmptyPersona = () => ({
+  name: "",
+  role: "",
+  summary: "",
+  goals: [],
+  frustrations: [],
+  image: ""
+});
+
+const createEmptyProjectDraft = (template = "") => ({
+  id: "",
+  title: "",
+  category: "",
+  description: "",
+  tags: [],
+  featured: false,
+  template,
+  status: "draft",
+  role: "",
+  scope: "",
+  timeline: "",
+  outcome: "",
+  coverImage: "",
+  thumbnail: "",
+  challenge: "",
+  approach: "",
+  impact: "",
+  caseStudy: {
+    overview: {
+      role: "",
+      duration: "",
+      team: "",
+      tools: "",
+      coverImage: "",
+      summary: ""
+    },
+    problemStatement: "",
+    goals: [],
+    empathyMap: {
+      says: "",
+      thinks: "",
+      does: "",
+      feels: "",
+      pains: "",
+      gains: ""
+    },
+    persona: createEmptyPersona(),
+    personas: [createEmptyPersona()],
+    designPrinciples: [],
+    userJourneyImage: "",
+    userFlowImage: "",
+    wireframesImage: "",
+    finalScreens: [],
+    outcome: "",
+    learnings: "",
+    legacyChallenge: "",
+    legacyApproach: "",
+    legacyImpact: ""
+  }
+});
+
+const createEmptyBlog = () => ({
+  id: "",
+  title: "",
+  preview: "",
+  date: "",
+  featured: false,
+  tags: [],
+  coverImage: "",
+  summary: "",
+  content: ""
+});
+
+const createEmptyExperience = () => ({
+  id: "",
+  role: "",
+  company: "",
+  logo: "",
+  duration: "",
+  highlights: []
+});
+
+const normalizePersona = (persona) => {
+  const base = createEmptyPersona();
+  return {
+    ...base,
+    ...persona,
+    name: safeTrimmedString(persona?.name),
+    role: safeTrimmedString(persona?.role),
+    summary: safeString(persona?.summary),
+    goals: ensureArray(persona?.goals).map((item) => safeTrimmedString(item)).filter(Boolean),
+    frustrations: ensureArray(persona?.frustrations)
+      .map((item) => safeTrimmedString(item))
+      .filter(Boolean),
+    image: normalizeAssetPath(persona?.image)
+  };
+};
+
+const normalizeProjectStructure = (project) => {
+  const base = createEmptyProjectDraft(project?.template || "");
+  const overview = {
+    ...base.caseStudy.overview,
+    ...(project?.caseStudy?.overview || {})
+  };
+  const empathyMap = {
+    ...base.caseStudy.empathyMap,
+    ...(project?.caseStudy?.empathyMap || {})
+  };
+  const normalizedPersona = normalizePersona(
+    project?.caseStudy?.persona || project?.caseStudy?.personas?.[0] || {}
+  );
+  const normalizedPersonas = ensureArray(project?.caseStudy?.personas).length
+    ? ensureArray(project.caseStudy.personas).map(normalizePersona).slice(0, 3)
+    : [normalizedPersona];
+
+  return {
+    ...base,
+    ...project,
+    id: safeTrimmedString(project?.id, slugify(project?.title, `project-${Date.now()}`)),
+    title: safeTrimmedString(project?.title),
+    category: safeTrimmedString(project?.category),
+    description: safeString(project?.description),
+    tags: ensureArray(project?.tags).map((tag) => safeTrimmedString(tag)).filter(Boolean),
+    featured: Boolean(project?.featured),
+    template: safeTrimmedString(project?.template, base.template || "medical"),
+    status: safeTrimmedString(project?.status, "draft"),
+    role: safeString(project?.role),
+    scope: safeString(project?.scope),
+    timeline: safeString(project?.timeline),
+    outcome: safeString(project?.outcome),
+    coverImage: normalizeAssetPath(project?.coverImage),
+    thumbnail: normalizeAssetPath(project?.thumbnail || project?.coverImage),
+    challenge: safeString(project?.challenge),
+    approach: safeString(project?.approach),
+    impact: safeString(project?.impact),
+    caseStudy: {
+      ...base.caseStudy,
+      ...(project?.caseStudy || {}),
+      overview: {
+        ...overview,
+        role: safeString(overview.role),
+        duration: safeString(overview.duration),
+        team: safeString(overview.team),
+        tools: safeString(overview.tools),
+        coverImage: normalizeAssetPath(overview.coverImage || project?.coverImage),
+        summary: safeString(overview.summary)
+      },
+      problemStatement: safeString(project?.caseStudy?.problemStatement),
+      goals: ensureArray(project?.caseStudy?.goals).map((item) => safeTrimmedString(item)).filter(Boolean),
+      empathyMap: Object.fromEntries(
+        Object.entries(empathyMap).map(([key, value]) => [key, safeString(value)])
+      ),
+      persona: normalizedPersona,
+      personas: normalizedPersonas,
+      designPrinciples: ensureArray(project?.caseStudy?.designPrinciples)
+        .map((item) => safeTrimmedString(item))
+        .filter(Boolean),
+      userJourneyImage: normalizeAssetPath(project?.caseStudy?.userJourneyImage),
+      userFlowImage: normalizeAssetPath(project?.caseStudy?.userFlowImage),
+      wireframesImage: normalizeAssetPath(project?.caseStudy?.wireframesImage),
+      finalScreens: ensureArray(project?.caseStudy?.finalScreens)
+        .map((item) => normalizeAssetPath(item))
+        .filter(Boolean),
+      outcome: safeString(project?.caseStudy?.outcome),
+      learnings: safeString(project?.caseStudy?.learnings),
+      legacyChallenge: safeString(project?.caseStudy?.legacyChallenge || project?.challenge),
+      legacyApproach: safeString(project?.caseStudy?.legacyApproach || project?.approach),
+      legacyImpact: safeString(project?.caseStudy?.legacyImpact || project?.impact)
+    }
+  };
+};
+
+const normalizeBlogStructure = (blog) => {
+  const base = createEmptyBlog();
+  return {
+    ...base,
+    ...blog,
+    id: safeTrimmedString(blog?.id, slugify(blog?.title, `blog-${Date.now()}`)),
+    title: safeTrimmedString(blog?.title),
+    preview: safeString(blog?.preview),
+    date: safeTrimmedString(blog?.date),
+    featured: Boolean(blog?.featured),
+    tags: ensureArray(blog?.tags).map((tag) => safeTrimmedString(tag)).filter(Boolean),
+    coverImage: normalizeAssetPath(blog?.coverImage),
+    summary: safeString(blog?.summary),
+    content: safeString(blog?.content)
+  };
+};
+
+const normalizeExperienceStructure = (entry) => {
+  const base = createEmptyExperience();
+  return {
+    ...base,
+    ...entry,
+    id: safeTrimmedString(entry?.id, slugify(`${entry?.company || ""}-${entry?.role || ""}`, `experience-${Date.now()}`)),
+    role: safeTrimmedString(entry?.role),
+    company: safeTrimmedString(entry?.company),
+    logo: normalizeAssetPath(entry?.logo),
+    duration: safeString(entry?.duration),
+    highlights: ensureArray(entry?.highlights).map((item) => safeString(item)).filter(Boolean)
+  };
+};
+
+const normalizeSocials = (socials) => {
+  const source = ensureArray(socials);
+  return DEFAULT_SOCIALS.map((defaultItem) => {
+    const matched =
+      source.find((item) => safeTrimmedString(item?.key).toLowerCase() === defaultItem.key) ||
+      source.find(
+        (item) => safeTrimmedString(item?.label).toLowerCase() === defaultItem.label.toLowerCase()
+      ) ||
+      {};
+    return {
+      ...defaultItem,
+      ...matched,
+      key: defaultItem.key,
+      label: defaultItem.label,
+      url: safeTrimmedString(matched.url),
+      visible: Boolean(matched.visible)
+    };
+  });
+};
+
+const normalizeFocusAreas = (focusAreas) =>
+  ensureArray(focusAreas)
+    .map((item) => ({
+      title: safeTrimmedString(item?.title),
+      description: safeString(item?.description)
+    }))
+    .filter((item) => item.title || item.description);
+
+const normalizeSkills = (skills) =>
+  ensureArray(skills)
+    .map((item) => {
+      if (typeof item === "string") {
+        return {
+          group: safeTrimmedString(item),
+          items: []
+        };
+      }
+
+      return {
+        group: safeTrimmedString(item?.group || item?.title),
+        items: ensureArray(item?.items)
+          .map((entry) => safeTrimmedString(entry))
+          .filter(Boolean)
+      };
+    })
+    .filter((item) => item.group || item.items.length);
+
+const hasValidEncryptedPayload = (payload) => {
+  if (!payload || typeof payload !== "object") {
+    return false;
+  }
+  return ["salt", "iv", "cipherText"].every((key) => safeTrimmedString(payload[key]));
+};
+
+const sanitizeExclusiveProjects = (projects) =>
+  ensureArray(projects)
+    .map((project) => ({
+      id: safeTrimmedString(project?.id, slugify(project?.title, `exclusive-${Date.now()}`)),
+      title: safeTrimmedString(project?.title),
+      category: safeTrimmedString(project?.category),
+      summary: safeString(project?.summary || project?.description),
+      description: safeString(project?.description || project?.summary),
+      thumbnail: normalizeAssetPath(project?.thumbnail || project?.coverImage),
+      coverImage: normalizeAssetPath(project?.coverImage || project?.thumbnail),
+      tags: ensureArray(project?.tags).map((tag) => safeTrimmedString(tag)).filter(Boolean),
+      template: safeTrimmedString(project?.template, "medical"),
+      featured: Boolean(project?.featured),
+      encryptedPayload: hasValidEncryptedPayload(project?.encryptedPayload)
+        ? {
+            version: Number(project.encryptedPayload.version || 1),
+            kdf: safeTrimmedString(project.encryptedPayload.kdf || "PBKDF2"),
+            iterations: Number(project.encryptedPayload.iterations || EXCLUSIVE_KEY_ITERATIONS),
+            salt: safeTrimmedString(project.encryptedPayload.salt),
+            iv: safeTrimmedString(project.encryptedPayload.iv),
+            cipherText: safeTrimmedString(project.encryptedPayload.cipherText)
+          }
+        : null
+    }))
+    .filter(
+      (project) =>
+        project.id &&
+        project.encryptedPayload &&
+        !REMOVED_EXCLUSIVE_PROJECT_IDS.has(project.id)
+    );
+
+const normalizePortfolioData = (data = {}) => {
+  const source = typeof data === "object" && data ? data : {};
+  const importedExclusiveAccess = importedPortfolioData?.settings?.exclusiveAccess || {};
+  const defaultProfile = importedPortfolioData.profile || {};
+  const shouldSyncImportedContent =
+    safeTrimmedString(source.settings?.contentRevision) !== DEFAULT_CONTENT_REVISION;
+  const resolvedFocusAreas = shouldSyncImportedContent
+    ? normalizeFocusAreas(defaultProfile.focusAreas)
+    : normalizeFocusAreas(source.profile?.focusAreas);
+  const resolvedSkills = shouldSyncImportedContent
+    ? normalizeSkills(defaultProfile.skills)
+    : normalizeSkills(source.profile?.skills);
+  const resolvedAbout = shouldSyncImportedContent
+    ? safeString(defaultProfile.about || "")
+    : safeString(source.profile?.about, defaultProfile.about || "");
+  const resolvedContactCopy = shouldSyncImportedContent
+    ? safeString(defaultProfile.contactCopy || "")
+    : safeString(source.profile?.contactCopy, defaultProfile.contactCopy || "");
+  const resolvedSiteContent = shouldSyncImportedContent
+    ? {
+        ...DEFAULT_SITE_CONTENT,
+        ...(importedPortfolioData?.settings?.siteContent || {})
+      }
+    : {
+        ...DEFAULT_SITE_CONTENT,
+        ...(source.settings?.siteContent || {})
+      };
+
+  return {
+    profile: {
+      name: safeTrimmedString(source.profile?.name, defaultProfile.name || "Chaithra Poojary"),
+      firstName: safeTrimmedString(source.profile?.firstName, defaultProfile.firstName || "Chaithra"),
+      role: safeTrimmedString(source.profile?.role, defaultProfile.role || "Product Designer"),
+      heroImage: normalizeAssetPath(source.profile?.heroImage, defaultProfile.heroImage || "/assets/banner.png"),
+      brand: {
+        displayName: safeTrimmedString(
+          source.profile?.brand?.displayName,
+          defaultProfile.brand?.displayName || defaultProfile.name || "Chaithra Poojary"
+        ),
+        caption: safeTrimmedString(
+          source.profile?.brand?.caption,
+          defaultProfile.brand?.caption || defaultProfile.role || "Product Designer"
+        ),
+        iconImage: normalizeAssetPath(
+          source.profile?.brand?.iconImage,
+          defaultProfile.brand?.iconImage || "/assets/Logo.png"
+        ),
+        faviconImage: normalizeAssetPath(
+          source.profile?.brand?.faviconImage,
+          defaultProfile.brand?.faviconImage || "/assets/Logo.svg"
+        ),
+        accentStart: safeTrimmedString(
+          source.profile?.brand?.accentStart,
+          defaultProfile.brand?.accentStart || "#7A5CFF"
+        ),
+        accentEnd: safeTrimmedString(
+          source.profile?.brand?.accentEnd,
+          defaultProfile.brand?.accentEnd || "#5A8BFF"
+        ),
+        accentDot: safeTrimmedString(
+          source.profile?.brand?.accentDot,
+          defaultProfile.brand?.accentDot || "#7b72ed"
+        )
+      },
+      tagline: safeString(source.profile?.tagline, defaultProfile.tagline || ""),
+      cvFile: safeString(source.profile?.cvFile),
+      cvFileName: safeTrimmedString(source.profile?.cvFileName, "Chaithra-Poojary CV.pdf"),
+      cvAssetKey: safeTrimmedString(source.profile?.cvAssetKey),
+      about: resolvedAbout,
+      contactCopy: resolvedContactCopy,
+      image: normalizeAssetPath(source.profile?.image),
+      focusAreas: resolvedFocusAreas,
+      skills: resolvedSkills,
+      socials: normalizeSocials(source.profile?.socials)
+    },
+    settings: {
+      contentRevision: DEFAULT_CONTENT_REVISION,
+      exclusiveAccess: {
+        passwordHash: safeTrimmedString(
+          source.settings?.exclusiveAccess?.passwordHash,
+          importedExclusiveAccess.passwordHash
+        ),
+        passwordSalt: safeTrimmedString(
+          source.settings?.exclusiveAccess?.passwordSalt,
+          importedExclusiveAccess.passwordSalt
+        ),
+        hint: safeString(
+          source.settings?.exclusiveAccess?.hint,
+          importedExclusiveAccess.hint || "Enter password from my CV."
+        )
+      },
+      appearance: {
+        ...DEFAULT_APPEARANCE_SETTINGS,
+        ...(source.settings?.appearance || {})
+      },
+      siteContent: resolvedSiteContent
+    },
+    cvDownloads: ensureArray(source.cvDownloads)
+      .map((entry) => ({
+        email: safeTrimmedString(entry?.email),
+        companyName: safeTrimmedString(entry?.companyName),
+        requestedAt: safeTrimmedString(entry?.requestedAt)
+      }))
+      .filter((entry) => entry.email || entry.companyName || entry.requestedAt),
+    projects: ensureArray(source.projects).map(normalizeProjectStructure),
+    exclusiveProjects: sanitizeExclusiveProjects(source.exclusiveProjects),
+    blogs: ensureArray(source.blogs).map(normalizeBlogStructure),
+    experience: ensureArray(source.experience).map(normalizeExperienceStructure)
+  };
+};
+
+const defaultPortfolioData = normalizePortfolioData(importedPortfolioData);
+
+const saveNormalizedPortfolioData = (value) => {
+  const normalized = normalizePortfolioData(value);
+  localStorage.setItem(PORTFOLIO_STORAGE_KEY, JSON.stringify(normalized));
+  return normalized;
+};
+
+const loadStoredPortfolioData = () => {
+  const raw = localStorage.getItem(PORTFOLIO_STORAGE_KEY);
+  if (!raw) {
+    return deepClone(defaultPortfolioData);
+  }
+
+  try {
+    return normalizePortfolioData(JSON.parse(raw));
+  } catch {
+    return deepClone(defaultPortfolioData);
+  }
+};
+
+const bytesToBase64 = (bytes) => {
+  const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join("");
+  return btoa(binary);
+};
+
+const base64ToBytes = (value) => {
+  const normalized = safeTrimmedString(value);
+  if (!normalized) {
+    throw new Error("Missing encoded value.");
+  }
+  const binary = atob(normalized);
+  return Uint8Array.from(binary, (char) => char.charCodeAt(0));
+};
+
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
+
+const deriveExclusiveKey = async (password, saltBytes, iterations = EXCLUSIVE_KEY_ITERATIONS) => {
+  const passwordKey = await crypto.subtle.importKey(
+    "raw",
+    textEncoder.encode(password),
+    "PBKDF2",
+    false,
+    ["deriveKey"]
+  );
+
+  return crypto.subtle.deriveKey(
+    {
+      name: "PBKDF2",
+      salt: saltBytes,
+      iterations,
+      hash: "SHA-256"
+    },
+    passwordKey,
+    {
+      name: "AES-GCM",
+      length: 256
+    },
+    false,
+    ["encrypt", "decrypt"]
+  );
+};
+
+const digestPassword = async (password, saltBytes) => {
+  const buffer = await crypto.subtle.digest(
+    "SHA-256",
+    textEncoder.encode(`${bytesToBase64(saltBytes)}:${password}`)
+  );
+  return bytesToBase64(new Uint8Array(buffer));
+};
+
+const openCvAssetDatabase = () =>
+  new Promise((resolve, reject) => {
+    if (!("indexedDB" in window)) {
+      reject(new Error("IndexedDB is unavailable."));
+      return;
+    }
+
+    const request = indexedDB.open(CV_ASSET_DB_NAME, 1);
+    request.onerror = () => reject(request.error || new Error("Could not open CV asset database."));
+    request.onupgradeneeded = () => {
+      const database = request.result;
+      if (!database.objectStoreNames.contains(CV_ASSET_STORE_NAME)) {
+        database.createObjectStore(CV_ASSET_STORE_NAME, { keyPath: "key" });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+  });
+
+const runCvAssetRequest = async (mode, executor) => {
+  const database = await openCvAssetDatabase();
+  return new Promise((resolve, reject) => {
+    const transaction = database.transaction(CV_ASSET_STORE_NAME, mode);
+    const store = transaction.objectStore(CV_ASSET_STORE_NAME);
+    const request = executor(store);
+    request.onerror = () => reject(request.error || new Error("CV asset request failed."));
+    request.onsuccess = () => resolve(request.result);
+    transaction.oncomplete = () => database.close();
+    transaction.onerror = () => reject(transaction.error || new Error("CV asset transaction failed."));
+  });
+};
+
+const formatPortfolioDate = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return safeString(value);
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  }).format(date);
+};
+
+const createExclusivePreview = (project, encryptedPayload) => ({
+  id: safeTrimmedString(project?.id, slugify(project?.title, `exclusive-${Date.now()}`)),
+  title: safeTrimmedString(project?.title),
+  category: safeTrimmedString(project?.category),
+  summary: safeString(project?.summary || project?.description),
+  description: safeString(project?.description || project?.summary),
+  thumbnail: normalizeAssetPath(project?.thumbnail || project?.coverImage),
+  coverImage: normalizeAssetPath(project?.coverImage || project?.thumbnail),
+  tags: ensureArray(project?.tags).map((tag) => safeTrimmedString(tag)).filter(Boolean),
+  template: safeTrimmedString(project?.template, "medical"),
+  featured: Boolean(project?.featured),
+  encryptedPayload
+});
+
+const encryptExclusiveProject = async (project, password) => {
+  const saltBytes = crypto.getRandomValues(new Uint8Array(16));
+  const ivBytes = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveExclusiveKey(password, saltBytes, EXCLUSIVE_KEY_ITERATIONS);
+  const normalizedProject = normalizeProjectStructure(project);
+  const cipherBuffer = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv: ivBytes },
+    key,
+    textEncoder.encode(JSON.stringify(normalizedProject))
+  );
+
+  return {
+    version: 1,
+    kdf: "PBKDF2",
+    iterations: EXCLUSIVE_KEY_ITERATIONS,
+    salt: bytesToBase64(saltBytes),
+    iv: bytesToBase64(ivBytes),
+    cipherText: bytesToBase64(new Uint8Array(cipherBuffer))
+  };
+};
+
+const decryptExclusiveProject = async (payload, password) => {
+  if (!hasValidEncryptedPayload(payload)) {
+    throw new Error("Invalid encrypted payload.");
+  }
+
+  const saltBytes = base64ToBytes(payload.salt);
+  const ivBytes = base64ToBytes(payload.iv);
+  const cipherBytes = base64ToBytes(payload.cipherText);
+  const iterationCandidates = [
+    Number(payload.iterations || EXCLUSIVE_KEY_ITERATIONS),
+    EXCLUSIVE_KEY_ITERATIONS,
+    100000,
+    150000,
+    200000
+  ].filter((value, index, array) => Number.isFinite(value) && array.indexOf(value) === index);
+
+  let lastError = new Error("Exclusive project decryption failed.");
+  for (const iterations of iterationCandidates) {
+    try {
+      const key = await deriveExclusiveKey(password, saltBytes, iterations);
+      const plainBuffer = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: ivBytes },
+        key,
+        cipherBytes
+      );
+      return normalizeProjectStructure(
+        JSON.parse(textDecoder.decode(new Uint8Array(plainBuffer)))
+      );
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError;
+};
+
+const hashExclusivePassword = async (password) => {
+  const saltBytes = crypto.getRandomValues(new Uint8Array(16));
+  const hash = await digestPassword(password, saltBytes);
+  return {
+    hash,
+    salt: bytesToBase64(saltBytes)
+  };
+};
+
+const verifyExclusivePassword = async (password, settings = {}) => {
+  const candidatePassword = safeTrimmedString(password);
+  if (!candidatePassword) {
+    return false;
+  }
+
+  const passwordHash = safeTrimmedString(settings.passwordHash);
+  const passwordSalt = safeTrimmedString(settings.passwordSalt);
+
+  if (passwordHash && passwordSalt) {
+    try {
+      const computedHash = await digestPassword(candidatePassword, base64ToBytes(passwordSalt));
+      if (computedHash === passwordHash) {
+        return true;
+      }
+    } catch {
+      // Fall back to decrypt-based verification below.
+    }
+  }
+
+  const fallbackExclusiveProjects = loadStoredPortfolioData().exclusiveProjects || [];
+  if (fallbackExclusiveProjects.length) {
+    try {
+      await decryptExclusiveProject(fallbackExclusiveProjects[0].encryptedPayload, candidatePassword);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
+};
+
+window.formatPortfolioDate = formatPortfolioDate;
+window.getProjectTemplates = () => deepClone(PROJECT_TEMPLATES);
+window.getCaseStudyStepLabels = () => deepClone(CASE_STUDY_STEP_LABELS);
+window.getPortfolioData = () => loadStoredPortfolioData();
+window.savePortfolioData = (value) => saveNormalizedPortfolioData(value);
+window.resetPortfolioData = () => {
+  localStorage.removeItem(PORTFOLIO_STORAGE_KEY);
+  return deepClone(defaultPortfolioData);
+};
+window.createExclusivePreview = createExclusivePreview;
+window.encryptExclusiveProject = encryptExclusiveProject;
+window.decryptExclusiveProject = decryptExclusiveProject;
+window.hashExclusivePassword = hashExclusivePassword;
+window.verifyExclusivePassword = verifyExclusivePassword;
+window.saveCvAsset = async (dataUrl, fileName) => {
+  const key = `cv-${Date.now()}`;
+  await runCvAssetRequest("readwrite", (store) =>
+    store.put({
+      key,
+      dataUrl: safeString(dataUrl),
+      fileName: safeTrimmedString(fileName, "Chaithra-Poojary CV.pdf"),
+      updatedAt: new Date().toISOString()
+    })
+  );
+  return key;
+};
+window.getCvAsset = async (key) =>
+  runCvAssetRequest("readonly", (store) => store.get(safeTrimmedString(key)));
+window.removeCvAsset = async (key) =>
+  runCvAssetRequest("readwrite", (store) => store.delete(safeTrimmedString(key)));
+window.portfolioData = window.getPortfolioData();
