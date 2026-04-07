@@ -1611,7 +1611,7 @@ window.addEventListener("storage", async (event) => {
 });
 
 if (contactForm) {
-  contactForm.addEventListener("submit", async (event) => {
+  contactForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const submitButton = contactForm.querySelector('button[type="submit"]');
     const status = contactForm.querySelector(".form-status");
@@ -1629,35 +1629,22 @@ if (contactForm) {
     submitButton.disabled = true;
     submitButton.textContent = "Sending...";
     if (status) {
-      status.textContent = "Sending your message...";
+      status.textContent = "Opening your mail app...";
     }
 
     try {
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          message
-        })
-      });
-
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        throw new Error(result?.error || "Message could not be sent.");
-      }
+      const subject = encodeURIComponent(`Portfolio inquiry from ${name}`);
+      const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+      window.location.href = `mailto:chaithrapoojari1234@gmail.com?subject=${subject}&body=${body}`;
 
       contactForm.reset();
       if (status) {
-        status.textContent = "Message sent successfully.";
+        status.textContent = "Your mail app should open now.";
       }
     } catch (error) {
       if (status) {
         status.textContent =
-          error.message || "Message could not be sent right now. Please try again.";
+          error.message || "Mail app could not be opened right now. Please try again.";
       }
     } finally {
       submitButton.disabled = false;
